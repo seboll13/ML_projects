@@ -15,7 +15,7 @@
 \maketitle
 
 \begin{abstract}
-  Implement basic Machine Learning methods on a given data set and analyze the predictions from it.
+  Implement basic Machine Learning methods on a given data set and analyze the predictions from them in order to compare the different methods.
 \end{abstract}
 
 \section{Introduction}
@@ -28,7 +28,7 @@ The goal of this first mini project is to implement all basic Machine Learning m
 \end{enumerate}
 
 \section{Data normalization}
-Before performing any algorithm, we essentially have to do two things in order to clean the data:
+Before performing any algorithm, we essentially have to clean the data in order for us to use it correctly and generate accurate predictions. There are two things we have to do:
 \begin{enumerate}
   \item We first have to normalize the training data. For each data sample $X$, we want to compute the value $Y=(X-\mu)/\sigma$ where $\mu$ is the computed mean and $\sigma$ the standard deviation.
   \item Then, we want to add a one in front of the $X^T$ matrix. This represents the bias which allows the linear function not to pass from the origin. In a function $y=ax+b$, $b$ is the bias.

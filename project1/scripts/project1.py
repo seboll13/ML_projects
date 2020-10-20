@@ -105,6 +105,7 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
+
 def least_squares_SGD(y, tx, initial_w, batch_size, max_iters, gamma):
     """Stochastic gradient descent algorithm."""
     # Define parameters to store w and loss
@@ -125,6 +126,13 @@ def least_squares_SGD(y, tx, initial_w, batch_size, max_iters, gamma):
 
     return losses, ws
 
+
+def least_squares(y, tx):
+    """calculate the least squares."""
+    a = tx.T @ tx
+    b = tx.T @ y
+    w = np.linalg.solve(a, b)
+    return compute_loss(y, tx, w), w
 
 # In[5]:
 
@@ -150,24 +158,19 @@ w_initial = np.zeros((tX.shape[1], 1))
 
 # Start SGD.
 start_time = datetime.datetime.now()
-sgd_losses, sgd_ws = least_squares_SGD(y, tX, w_initial, batch_size, max_iters, gamma)
+#sgd_losses, sgd_ws = least_squares_SGD(y, tX, w_initial, batch_size, max_iters, gamma)
+ls_losses, ls_ws = least_squares(y, tX)
 end_time = datetime.datetime.now()
 
 # Print result
-exection_time = (end_time - start_time).total_seconds()
-print("SGD: execution time={t:.3f} seconds".format(t=exection_time))
+execution_time = (end_time - start_time).total_seconds()
+print("Execution time={t:.3f} seconds".format(t=execution_time))
 
-weights = sgd_ws[-1]
+#weights = sgd_ws[-1]
+weights = ls_ws
 
 
 # In[7]:
-
-
-def least_squares(y, tx):
-    """calculate the least squares."""
-    a = tx.T.dot(tx)
-    b = tx.T.dot(y)
-    return np.linalg.solve(a, b)
 
 
 def ridge_regression(y, tx, lambda_):
@@ -239,7 +242,6 @@ def penalized_logistic_regression(y, tx, w, lambda_):
 
 DATA_TEST_PATH = '../data/test.csv'
 _, tX_test, ids_test = load_csv_data(DATA_TEST_PATH)
-
 tX_test, mean_x_test, std_x_test = standardize(tX_test)
 tX_test = np.c_[np.ones(tX_test.shape[0]), tX_test]
 
