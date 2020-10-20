@@ -17,6 +17,8 @@
 # Notebook cache files
 /project1/scripts/__pycache__/*
 /project1/scripts/.ipynb_checkpoints/*
+project1/scripts/.ipynb_checkpoints/*
+
 
 ## Intermediate documents:
 *.dvi
