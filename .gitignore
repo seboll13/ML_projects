@@ -14,6 +14,10 @@
 *.cb2
 .*.lb
 
+# Notebook cache files
+/project1/scripts/__pycache__/*
+/project1/scripts/.ipynb_checkpoints/*
+
 ## Intermediate documents:
 *.dvi
 *.xdv
