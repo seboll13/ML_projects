@@ -5,12 +5,12 @@
 
 
 # Useful starting lines
-get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('matplotlib', 'inline')
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
-get_ipython().run_line_magic('load_ext', 'autoreload')
-get_ipython().run_line_magic('autoreload', '2')
+#get_ipython().run_line_magic('load_ext', 'autoreload')
+#get_ipython().run_line_magic('autoreload', '2')
 
 
 # ## Load the training data into feature matrix, class labels, and event ids:
