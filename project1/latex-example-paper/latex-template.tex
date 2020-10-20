@@ -30,7 +30,9 @@ The goal of this first mini project is to implement all basic Machine Learning m
 \section{Algorithms implementation details}
 % --- TODO: WRITE HERE THE REST OF THE IMPLEMENTATION DETAILS OF EACH ALGORITHM
 \subsection{Linear regression}
-This first algorithm is essential to Machine Learning. It consists of taking a data set that often contains two different data point types and split them using a line described by a linear function in order to divide the points the best way possible. We have performed two different implementations of it: one using Gradient Descent and the other one using Stochastic Gradient Descent.
+This first algorithm is essential to Machine Learning. It consists of taking a data set that often contains two different data point types and split them using a line described by a linear function in order to divide the points the best way possible. We have performed two different implementations of it: one using Gradient Descent and the other one using Stochastic Gradient Descent.\par
+Note that the Gradient Descent implementation does not work due to the fact that we are treating a big amount of data, so the Stochastic Gradient Descent will help us resolve that problem by only taking a batch of for example 50 randomly selected data samples.\par
+If we only import the data as it is, we have a problem: the loss function does not converge. To resolve the problem, we essentially have to standardize the data, that is given a variable $X$, we compute the value $Y=(X-\mu)/\sigma$ where $\mu$ is the computed mean and $\sigma$ the standard deviation.
 
 \subsection{Least squares regression}
 
