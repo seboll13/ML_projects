@@ -1,0 +1,37 @@
+\documentclass[10pt,conference,compsocconf]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{graphicx}	% For figure environment
+
+
+\begin{document}
+\title{Characterization of turbulent flows in tokamaks}
+
+\author{
+  Julien Hu, Matthieu Masouyé and Sébastien Ollquist\\
+  \textit{Department of Computer Science, EPFL, Switzerland}
+}
+
+\maketitle
+
+\begin{abstract}
+  A tokamak is an object that resembles a torus in which we make plasma turn at very high speeds in order to generate energy. The goal is then to push gas into the tokamak while plasma is turning and collect images of it in order to detect the regions where turbulence is the highest. This whole process is called Gas Puff Imaging (GPI) and the specific regions in questions are called blobs.\par
+  The goal of this project is to implement machine learning methods that can help us identify the regions on given data sets / images where the turbulence is the most present, that is, where the blobs are concentrated.
+\end{abstract}
+
+\section{Introduction}
+\dots
+\section{Data importation and manipulation}
+We were given a matlab file with all necessary data to use for the project. For the purpose, we have created a python script that reads the data from the .mat file and creates an array from each part of the given file. There are four relevant data sets:
+\begin{enumerate}
+  \item \textit{r\_arr} a 10 by 12 array of radiuses.
+  \item \textit{z\_arr} the corresponding array of z-axis values.
+  \item \textit{t\_window} the array of times at which a particular value was measured (the frequency is $2MHz$ so there is one experiment every $500ns$ approximately.)
+  \item \textit{brt\_arr} a 3d-array of each individual experiment.
+\end{enumerate}
+
+\bibliographystyle{IEEEtran}
+\bibliography{literature}
+
+\end{document}
