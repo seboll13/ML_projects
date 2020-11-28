@@ -6,9 +6,29 @@ import matplotlib.pyplot as plt
 import os
 import sys
 
+#Settings 
+#size of canvas
+max_x = 480    
+max_y = 480
+#window which is captured from main canvas to do the images
+window = max_x / 2
+final_size_x = 12
+final_size_y = 10
+#amount of gaussian structures to create
+amount = 66
+#parameters for gaussian structures
+sigma = 0.2
+muu = 0.000
+
+#speedplot parameters for tanh
+shift = 0    #in pixels
+magnitude = 10
+compression = 3
+
 def assign_speed(x, max_x):
     adjusted = (x+shift)/(max_x/2)-1
     return magnitude * np.tanh(adjusted*compression)
+
 
 def plot_speed_curve():
     x = np.linspace(0,max_x,max_x)
@@ -30,7 +50,7 @@ def plot_speed_curve():
 
     # plot the function
     plt.plot(x,y, 'r')
-    
+   
 def create_gaussian_array(size):
     x, y = np.meshgrid(np.linspace(-1,1,size), np.linspace(-1,1,size)) 
     dst = np.sqrt(x*x+y*y) 
@@ -38,6 +58,7 @@ def create_gaussian_array(size):
     # Calculating Gaussian array 
     gauss = np.exp(-( (dst-muu)**2 / ( 2.0 * sigma**2 ) ) ) 
     return gauss
+
 
 def create_structures(max_x, max_y, amount):
     gauss = []
@@ -54,6 +75,7 @@ def create_structures(max_x, max_y, amount):
         gauss.append([np.array([x,y]),struc,np.array([0,assign_speed(x,max_x)])])
     return gauss
 
+
 def update_structs(structs, time, max_x, max_y):
     new_structs = structs.copy()
     for p in range(0,len(structs)):
@@ -62,6 +84,7 @@ def update_structs(structs, time, max_x, max_y):
         new_pos[1] = new_pos[1] % max_y
         new_structs[p][0] = new_pos
     return new_structs
+
 
 def draw_structs(structs,max_x,max_y):
     canvas = np.zeros((max_y,max_x))
@@ -82,9 +105,11 @@ def draw_structs(structs,max_x,max_y):
         canvas += rolled
     return canvas
 
+
 def downsize(array,newdim_x,newdim_y):
     olddim = array.shape[0]
     return array.reshape([newdim_x, olddim//newdim_x, newdim_y, olddim//newdim_y]).mean(3).mean(1)
+
 
 def draw(canvas):
     canvas = canvas * 255
@@ -92,11 +117,13 @@ def draw(canvas):
     canvas[canvas < 0] = 0
     return Image.fromarray(np.array(canvas,dtype=np.uint8))
 
+
 def extract_middle(array, size):
     oldsize = array.shape[0]
     begining = math.floor((oldsize/2) - (size/2))
     end = math.floor((oldsize/2) + (size/2))
     return array[begining:end, begining:end]
+
 
 def save_video(img_array, name, size_x, size_y):
     video = cv2.VideoWriter(name, 0, 10, (size_x,size_y))
@@ -107,49 +134,38 @@ def save_video(img_array, name, size_x, size_y):
 
     cv2.destroyAllWindows()
     video.release()
-    
+
+
 def save_to_folder(images,resized):
     x = np.linspace(0,max_x,max_x)
     speedplot = assign_speed(x,max_x)
     speedplot = speedplot.reshape([final_size_x, speedplot.shape[0]//final_size_x]).mean(1)
-    root = "data"
-    if not os.path.exists(root):
-        os.mkdir(root)
+
+    # Saving data (images)
     num = 0
     name = "synthetic_data_"
-    while os.path.exists(os.path.join(root,name + str(num))):
+    while os.path.exists(name + str(num)):
         num += 1
-    print("Saving in folder:" + name + str(num))
-    path = os.path.join(root,name + str(num))
+    path = name + str(num)
     os.mkdir(path)
-    plot_speed_curve()
-    plt.savefig(os.path.join(path,"speed_plot.png"))
-    np.savetxt(os.path.join(path,"speedplot.csv"), speedplot, delimiter=",")
-    save_video(images,os.path.join(path , "full_canvas.avi"),max_x,max_y)
-    save_video(resized,os.path.join(path , "resized_window.avi"),final_size_x,final_size_y)
     for i in range(0,len(resized)):
         resized[i].save(os.path.join(path, "frame_" + str(i) + ".png"))
+    print("Saved data in folder: " + name + str(num))
+    
+    # Saving statistics (videos, graph and text file)
+    name_stats = "synthetic_data_stats_"
+    path_stats = name_stats + str(num)
+    os.mkdir(path_stats)
+    plot_speed_curve()
+    plt.savefig(os.path.join(path_stats, "speed_plot.png"))
+    np.savetxt(os.path.join(path_stats, "speedplot.csv"), speedplot, delimiter=",")
+    save_video(images, os.path.join(path_stats, "full_canvas.avi"), max_x, max_y)
+    save_video(resized, os.path.join(path_stats, "resized_window.avi"), final_size_x, final_size_y)
 
-#Settings 
-#size of canvas
-max_x = 480    
-max_y = 480
-#window which is captured from main canvas to do the images
-window = max_x / 2
-final_size_x = 12
-final_size_y = 10
-#amount of gaussian structures to create
-amount = 66
-#parameters for gaussian structures
-sigma = 0.2
-muu = 0.000
-
-#speedplot parameters for tanh
-shift = 0    #in pixels
-magnitude = 10
-compression = 3
-
-def main():
+ 
+if __name__ == '__main__':
+    print("Initialization...")
+    
     iterations = 200
     if len(sys.argv) >= 2:
         iterations = sys.argv[1]
@@ -169,7 +185,3 @@ def main():
         resized.append(draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x)))
     print("Saving to folder...")
     save_to_folder(images, resized)
-    
-if __name__ == '__main__':
-    print("Initialization...")
-    main()
