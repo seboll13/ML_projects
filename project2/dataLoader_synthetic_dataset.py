@@ -64,4 +64,4 @@ class Dataset(data.Dataset):
         return self.transform(np_images,speedplot)
         
     def transform(self,images,speedplot):
-        return images, speedplot
+        return np.repeat(images[np.newaxis, :, :, :], 3, axis = 0), speedplot
