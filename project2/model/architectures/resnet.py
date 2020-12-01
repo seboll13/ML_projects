@@ -115,7 +115,7 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, layers[3], shortcut_type, stride=2)
 #         last_duration = math.ceil(sample_duration / 16)
 #         last_size = math.ceil(sample_size / 32)
-        self.avgpool = nn.AvgPool3d((7, 1, 1), stride=1) #(sample_duration, sample_height, sample_width)
+        self.avgpool = nn.AvgPool3d((1, 1, 1), stride=1) #(sample_duration, sample_height, sample_width)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
         for m in self.modules():
@@ -149,7 +149,6 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        print(x.size())
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -159,10 +158,8 @@ class ResNet(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
-        print(x.size())
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
-        print(x.size())
         
         if self.last_fc:
             x = self.fc(x)

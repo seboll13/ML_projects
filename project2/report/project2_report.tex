@@ -22,25 +22,31 @@
 
 \section{Introduction}
 Gas Puff Imaging (GPI) is a technique that involves pushing gas in a tokamak in order to study the turbulence present at the edge of magnetically confined plasmas. It uses a puff of neutral gas so we can increase the local light emission level in order to improve optical imaging of the space-time structure of the edge plasma turbulence.\par
-The primary goal of this project is to understand and implement machine learning methods that can help us detect the shear layer, that is, the separation at which the direction of the flow of particles changes. The idea is to implement a Convolutional Neural Network on the data set in order to easily distinguish the different flows \cite{velocitycnn}.
+The primary goal of this project is to understand and implement machine learning methods that can help us detect the shear layer, that is, the separation at which the direction of the flow of particles changes. The idea is to implement a 3D Convolutional Neural Network on the data set that can analyze a sequence of images easily, all this in order to easily distinguish the different flows \cite{velocitycnn}.
 
 \section{Data importation and manipulation}
-We were first given a matlab file with all necessary data to use for the project. For the purpose, we have created a python script that reads the data from the .mat file and creates a numpy array from each part of the given file. Then, these arrays are written into four separate csv files, one for each category. There are four relevant data sets:
+We were first given a matlab file with all necessary data to use for the project. For the purpose, we have created a python script that reads the data from the .mat file and creates a numpy array from each part of the given file. Then, these arrays are written into four separate csv files, one for each category. There are four relevant data sets here:
 \begin{enumerate}
-  \item \textit{r\_arr} a 10 by 12 matrix of radiuses.
-  \item \textit{z\_arr} the corresponding array of the z-axis values.
-  \item \textit{t\_window} the array of times at which a particular value was measured (the frequency is $2MHz$ so there is one experiment every $500ns$ approximately.)
-  \item \textit{brt\_arr} the 3d-array (10x12x200000) of each individual experiment.
+  \item \texttt{r\_arr} a 10 by 12 matrix of radiuses.
+  \item \texttt{z\_arr} the corresponding array of the z-axis values.
+  \item \texttt{t\_window} the array of times at which a particular value was measured
+  \item \texttt{brt\_arr} the 3d-array (10x12x200000) of each individual experiment.
 \end{enumerate}
+We will be interested in the \texttt{brt\_arr} which contains each individual experiment that has been done accross the full second. The frequency at which the images are taken is a fixed $2MHz$, thus one frame is taken every approximately 500 nano-seconds. Each frame will be analyzed by our algorithm in order to determine the velocity of each particle in the frame and its corresponding direction.
 
 \section{Synthetic data generation}
 
-\section{Finding the correct architecture}
+\section{Model training}
+\subsection{Finding the correct architecture}
 This part essentially contains the research we have done in order to choose the correct architecture for the project. The model we have decided to use is based on ResNet, which is a classic neural network that helps solving computer vision tasks \cite{hara3dcnns}. As we have to analyze a sequence of images, this model is the perfect solution for us.
 
-\section{Training the model on synthetic data}
+\subsection{Training the model on synthetic data}
+In this section we will describe how we have proceeded to train the model on the synthetic data in order to prepare it for the real data later. Using our data loader script, we import the data we want to use and define a training set, a validation set and a test set.
+\paragraph{Training} This part essentially consists of two main phases: a forward phase and a backward phase. In the forward phase, the input goes through the whole network and in the backward phase, an algorithm is used (back propagation algorithm) to derive the gradients and update the weights of the model. We perform multiple iterations of the training algorithm which are called "epochs" in order to train the model better and decrease the loss as much as possible.
+\paragraph{Evaluation} This part is meant to evaluate how good we have done in the training part. We do this by computing the proportion of correct predictions done.
+\paragraph{Testing} % TODO
 
-\section{Training the model on the real data}
+\subsection{Training the model on the real data}
 
 \section{Conclusion}
 

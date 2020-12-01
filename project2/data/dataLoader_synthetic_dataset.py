@@ -38,7 +38,7 @@ class Dataset(data.Dataset):
         if usage == 'test':
             self.img_sets = self.img_sets[math.floor(len(self.img_sets)*0.8):]
         elif usage == 'validation':
-            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*0.8*0.8):math.floor(len(img_sets)*0.8)]
+            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*0.8*0.8):math.floor(len(self.img_sets)*0.8)]
         elif usage == 'train':
             self.training = True
             self.img_sets = self.img_sets[:math.floor(len(self.img_sets)*0.8*0.8)]
