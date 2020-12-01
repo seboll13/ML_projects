@@ -9,7 +9,8 @@ import sys
 
 #Settings 
 #Seed for blob size and position
-np.random.seed(1)
+seed = 1
+np.random.seed(seed)
 #size of canvas
 max_x = 480    
 max_y = 480
@@ -153,6 +154,7 @@ def save_to_folder(images,resized):
     plot_speed_curve()
     plt.savefig(os.path.join(path,"speed_plot.png"))
     np.savetxt(os.path.join(path,"speedplot.csv"), speedplot, delimiter=",")
+    np.savetxt(os.path.join(path,"seed.csv"), np.array([seed]), delimiter=",")
     save_video(images,os.path.join(path , "full_canvas.avi"),max_x,max_y)
     save_video(resized,os.path.join(path , "resized_window.avi"),final_size_x,final_size_y)
     for i in range(0,len(resized)):
