@@ -6,8 +6,36 @@ import matplotlib.pyplot as plt
 import os
 import sys
 
+
+#Settings 
+#Seed for blob size and position
+np.random.seed(1)
+#size of canvas
+max_x = 480    
+max_y = 480
+#window which is captured from main canvas to do the images
+window = max_x / 2
+final_size_x = 12
+final_size_y = 10
+#amount of gaussian structures to create
+amount = 66
+#size of the gaussian structures
+min_size = 200
+max_size = min(max_x,max_y)
+#how many negative gaussian array, as a ratio of total arrays created
+negative_ratio = 0.5
+#parameters for gaussian structures
+sigma = 0.2
+muu = 0.000
+#speedplot parameters for tanh
+shift = 0    #shift the center of the tanh, in pixels
+magnitude = 10     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
+compression = 3    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
+#number of iterations
+iterations = 200
+
 def assign_speed(x, max_x):
-    adjusted = (x+shift)/(max_x/2)-1
+    adjusted = (x-shift)/(max_x/2)-1
     return magnitude * np.tanh(adjusted*compression)
 
 def plot_speed_curve():
@@ -42,10 +70,10 @@ def create_gaussian_array(size):
 def create_structures(max_x, max_y, amount):
     gauss = []
     for s in range(0,amount):
-        size = np.random.randint(200,min(max_x,max_y))
+        size = np.random.randint(min_size,max_size)
         struc = create_gaussian_array(size)
         
-        if s > amount/2:
+        if s > amount*negative_ratio:
             struc = struc*-1
         
         x = np.random.randint(0,max_x)
@@ -130,29 +158,7 @@ def save_to_folder(images,resized):
     for i in range(0,len(resized)):
         resized[i].save(os.path.join(path, "frame_" + str(i) + ".png"))
 
-#Settings 
-#size of canvas
-max_x = 480    
-max_y = 480
-#window which is captured from main canvas to do the images
-window = max_x / 2
-final_size_x = 12
-final_size_y = 10
-#amount of gaussian structures to create
-amount = 66
-#parameters for gaussian structures
-sigma = 0.2
-muu = 0.000
-
-#speedplot parameters for tanh
-shift = 0    #in pixels
-magnitude = 10
-compression = 3
-
 def main():
-    iterations = 200
-    if len(sys.argv) >= 2:
-        iterations = sys.argv[1]
     print("Creating gaussian structures...")
     structs = create_structures(max_x, max_y, amount)
     canvas = draw_structs(structs,max_x,max_y)
