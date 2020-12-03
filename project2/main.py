@@ -180,27 +180,6 @@ if __name__ == '__main__':
     main()
 
 
-# In[ ]:
-
-
-get_ipython().system('jupyter nbconvert --to script main.ipynb')
-
-
-# In[27]:
-
-
-if __name__ == '__main__':
-    main()
-
-
-# In[29]:
-
-
-if __name__ == '__main__':
-    main()
-
-
-# In[ ]:
 
 
 
