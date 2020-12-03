@@ -35,6 +35,10 @@ compression = 3    #dictates the shape of tanh; higher number means it goes more
 #number of iterations
 iterations = 200
 
+settings = (("seed",seed),("max_x",max_x),("max_y",max_y),("window",window),("final_size_x",final_size_x),("final_size_y",final_size_y),
+("amount",amount),("min_size",min_size),("max_size",max_size),("negative_ratio",negative_ratio),("sigma",sigma),("muu",muu),
+("shift",shift),("magnitude",magnitude),("compression",compression),("iterations",iterations))
+
 def assign_speed(x, max_x):
     adjusted = (x-shift)/(max_x/2)-1
     return magnitude * np.tanh(adjusted*compression)
@@ -154,7 +158,11 @@ def save_to_folder(images,resized):
     plot_speed_curve()
     plt.savefig(os.path.join(path,"speed_plot.png"))
     np.savetxt(os.path.join(path,"speedplot.csv"), speedplot, delimiter=",")
-    np.savetxt(os.path.join(path,"seed.csv"), np.array([seed]), delimiter=",")
+    f = open(os.path.join(path,"settings.txt"), 'w')
+    for t in settings:
+        line = ' '.join(str(x) for x in t)
+        f.write(line + '\n')
+    f.close()
     save_video(images,os.path.join(path , "full_canvas.avi"),max_x,max_y)
     save_video(resized,os.path.join(path , "resized_window.avi"),final_size_x,final_size_y)
     for i in range(0,len(resized)):
