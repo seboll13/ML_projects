@@ -17,24 +17,31 @@
 \maketitle
 
 \begin{abstract}
-  A tokamak is an object in the form of a torus in which we make plasma turn at very high speeds in order to generate energy. The goal is then to push gas into the tokamak while plasma is turning and collect images of it in order to detect the regions where turbulence is the highest. This whole process is called Gas Puff Imaging (GPI) and the concerned specific regions of turbulence are called blobs. We will here describe what we have implemented in order to help identifying the direction of the velocity of the particles in a selected turbulent region.
+  A tokamak is an object in the form of a torus in which we make plasma turn at very high speeds in order to generate energy. The goal is then to push gas into the tokamak while plasma is turning and collect images of it in order to detect the regions where turbulence is the highest. This whole process is called Gas Puff Imaging (GPI) and the concerned specific regions of turbulence are called blobs. We will in this report describe the machine learning techniques we have implemented in order to help identifying the direction of the velocity of the particles in a selected turbulent region.
 \end{abstract}
 
 \section{Introduction}
 Gas Puff Imaging (GPI) is a technique that involves pushing gas in a tokamak in order to study the turbulence present at the edge of magnetically confined plasmas. It uses a puff of neutral gas so we can increase the local light emission level in order to improve optical imaging of the space-time structure of the edge plasma turbulence.\par
-The primary goal of this project is to understand and implement machine learning methods that can help us detect the shear layer, that is, the separation at which the direction of the flow of particles changes. The idea is to implement a 3D Convolutional Neural Network on the data set that can analyze a sequence of images easily, all this in order to easily distinguish the different flows \cite{velocitycnn}.
+The primary goal of this project is to understand and implement machine learning methods that can help us detect the shear layer more easily, that is, the separation at which the direction of the flow of particles changes. The idea is to implement a 3D Convolutional Neural Network on the data set that can analyze a sequence of images easily, all this in order to facilitate the distinguishibility of the different flows \cite{velocitycnn}.
 
 \section{Data importation and manipulation}
-We were first given a matlab file with all necessary data to use for the project. For the purpose, we have created a python script that reads the data from the .mat file and creates a numpy array from each part of the given file. Then, these arrays are written into four separate csv files, one for each category. There are four relevant data sets here:
+We were first given a matlab file with all necessary data to use for the project. The data given consists of four sets described down below. In order to prepare the data to become an input parameter, we have created a python script that reads the data from the .mat file and creates a numpy array from each part of the given file. Then, these arrays are written into four separate csv files, one for each category. The four relevant data sets given are:
 \begin{enumerate}
   \item \texttt{r\_arr} a 10 by 12 matrix of radiuses.
   \item \texttt{z\_arr} the corresponding array of the z-axis values.
   \item \texttt{t\_window} the array of times at which a particular value was measured
   \item \texttt{brt\_arr} the 3d-array (10x12x200000) of each individual experiment.
 \end{enumerate}
-We will be interested in the \texttt{brt\_arr} which contains each individual experiment that has been done accross the full second. The frequency at which the images are taken is a fixed $2MHz$, thus one frame is taken every approximately 500 nano-seconds. Each frame will be analyzed by our algorithm in order to determine the velocity of each particle in the frame and its corresponding direction.
+We will be interested in the \texttt{brt\_arr} which contains each individual experiment that has been done accross a one second time lapse. The frequency at which the images are taken is a fixed $2MHz$, thus one frame is taken every 500 nano-seconds approximately. Each frame will be analyzed by our algorithm in order to determine the velocity of each particle in the frame and its corresponding direction.\par
+The best solution to analyze such data is to create a 3D convolutional neural net (CNN) that are highly used for video analysis such as security camera footage. A CNN consists of processing layers that are used to reduce an image to its key features in order for it to be more easily classified. These three layers are:
+\begin{enumerate}
+  \item the convolution layer, in which the images are translated into processable data,
+  \item the pooling layer which progressively reduces the spatial size of the data in order to reduce the amount of parameters and computation in the network, and
+  \item the fully connected layer, in which after all the necessary computation is done, the output layers are flattened, the probabilities identified are analyzed ans the output is assigned a value.
+\end{enumerate}
 
 \section{Synthetic data generation}
+% TODO EXPLAIN SYNTHETIC DATA
 
 \section{Model training}
 \subsection{Finding the correct architecture}
@@ -44,7 +51,7 @@ This part essentially contains the research we have done in order to choose the 
 In this section we will describe how we have proceeded to train the model on the synthetic data in order to prepare it for the real data later. Using our data loader script, we import the data we want to use and define a training set, a validation set and a test set.
 \paragraph{Training} This part essentially consists of two main phases: a forward phase and a backward phase. In the forward phase, the input goes through the whole network and in the backward phase, an algorithm is used (back propagation algorithm) to derive the gradients and update the weights of the model. We perform multiple iterations of the training algorithm which are called "epochs" in order to train the model better and decrease the loss as much as possible.
 \paragraph{Evaluation} This part is meant to evaluate how good we have done in the training part. We do this by computing the proportion of correct predictions done.
-\paragraph{Testing} % TODO
+\paragraph{Testing} % TODO AFTER TESTING PART
 
 \subsection{Training the model on the real data}
 
