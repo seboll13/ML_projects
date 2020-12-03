@@ -10,7 +10,7 @@ class Dataset(data.Dataset):
         self.input_nb = nb_of_input_images
         self.flip = flip
         self.training = False
-        self.root = 'data'
+        self.root = 'data/data'
         folder_num = 0
         self.folders = []
         self.images_by_folder = []
