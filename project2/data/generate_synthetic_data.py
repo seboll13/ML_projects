@@ -8,6 +8,8 @@ import sys
 
 
 #Settings 
+#Save full size video (can be a lot of data)
+save_video_canvas = False
 #Seed for blob size and position
 seed = 1
 np.random.seed(seed)
@@ -163,7 +165,8 @@ def save_to_folder(images,resized):
         line = ' '.join(str(x) for x in t)
         f.write(line + '\n')
     f.close()
-    save_video(images,os.path.join(path , "full_canvas.avi"),max_x,max_y)
+    if save_video_canvas:
+        save_video(images,os.path.join(path , "full_canvas.avi"),max_x,max_y)
     save_video(resized,os.path.join(path , "resized_window.avi"),final_size_x,final_size_y)
     for i in range(0,len(resized)):
         resized[i].save(os.path.join(path, "frame_" + str(i) + ".png"))
