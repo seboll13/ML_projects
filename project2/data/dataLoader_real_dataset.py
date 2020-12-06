@@ -10,7 +10,7 @@ class Dataset(data.Dataset):
     def __init__(self, usage, nb_of_input_images = 17800):
         self.input_nb = nb_of_input_images
         self.training = False
-        self.root = 'realdata'
+        self.root = 'data'
         
         self.filelist=os.listdir(self.root)
         for file in self.filelist[:]: # filelist[:] makes a copy of filelist.
