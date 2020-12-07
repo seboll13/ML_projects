@@ -4,9 +4,14 @@ import numpy as np
 from torch.utils import data
 from PIL import Image
 import math
+import random
 
 class Dataset(data.Dataset):
     def __init__(self, usage, nb_of_input_images = 100, flip = False):
+        ratio_train_test = 0.8
+        ratio_train_validation = 0.8
+        random.seed(1)
+        
         self.input_nb = nb_of_input_images
         self.flip = flip
         self.training = False
@@ -34,14 +39,17 @@ class Dataset(data.Dataset):
                                  + " for at least one input(" + str(self.input_nb) + ")")
             for s in range(0,math.floor(len(image_set)/self.input_nb)):
                 self.img_sets.append(image_set[s*self.input_nb:(s+1)*self.input_nb])
-    
+        
+        random.shuffle(self.img_sets)
+        
         if usage == 'test':
-            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*0.8):]
+            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*ratio_train_test):]
         elif usage == 'validation':
-            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*0.8*0.8):math.floor(len(self.img_sets)*0.8)]
+            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*ratio_train_test*ratio_train_validation)
+            :math.floor(len(self.img_sets)*ratio_train_test)]
         elif usage == 'train':
             self.training = True
-            self.img_sets = self.img_sets[:math.floor(len(self.img_sets)*0.8*0.8)]
+            self.img_sets = self.img_sets[:math.floor(len(self.img_sets)*ratio_train_test*ratio_train_validation)]
         elif usage == 'all':
             self.training = True
         else:

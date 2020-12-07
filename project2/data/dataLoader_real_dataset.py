@@ -5,9 +5,14 @@ from torch.utils import data
 from PIL import Image
 import math
 import pickle
+import random
 
 class Dataset(data.Dataset):
     def __init__(self, usage, nb_of_input_images = 17800):
+        ratio_train_test = 0.8
+        ratio_train_validation = 0.8
+        random.seed(1)
+        
         self.input_nb = nb_of_input_images
         self.training = False
         self.root = 'data'
@@ -37,14 +42,19 @@ class Dataset(data.Dataset):
                     for s in range(0,math.floor(shot/self.input_nb)):
                         self.img_sets.append(np_brt_arr[:,:,s*self.input_nb:(s+1)*self.input_nb])
                         self.speedplots.append(np.asarray(vz_from_wk))
-    
+        
+        zipped = list(zip(self.img_sets,self.speedplots))
+        random.shuffle(zipped)
+        self.img_sets,self.speedplots = zip(*zipped)
+        
         if usage == 'test':
-            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*0.8):]
+            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*ratio_train_test):]
         elif usage == 'validation':
-            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*0.8*0.8):math.floor(len(img_sets)*0.8)]
+            self.img_sets = self.img_sets[math.floor(len(self.img_sets)*ratio_train_test*ratio_train_validation)
+            :math.floor(len(self.img_sets)*ratio_train_test)]
         elif usage == 'train':
             self.training = True
-            self.img_sets = self.img_sets[:math.floor(len(self.img_sets)*0.8*0.8)]
+            self.img_sets = self.img_sets[:math.floor(len(self.img_sets)*ratio_train_test*ratio_train_validation)]
         elif usage == 'all':
             self.training = True
         else:
