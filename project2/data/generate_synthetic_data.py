@@ -47,7 +47,7 @@ def assign_speed(x, max_x):
 
 def plot_speed_curve():
     x = np.linspace(0,max_x,max_x)
-
+    
     y = assign_speed(x,max_x)
 
     # setting the axes at the centre
@@ -65,6 +65,18 @@ def plot_speed_curve():
 
     # plot the function
     plt.plot(x,y, 'r')
+    interval = math.floor(max_x/final_size_x)
+    columns = []
+    for i in range(0,13):
+        columns.append(i*interval)
+    zero_crossing = np.where(np.diff(np.sign(y)))[0][0] + 1
+    columns.append(zero_crossing)
+    columns.sort()
+    speedplot = []
+    for i in range(0,len(columns)-1):
+        b = columns[i+1]-columns[i]
+        speedplot.append(np.divide(y[columns[i]:columns[i+1]].sum(), b, out=np.zeros(1), where=b!=0)[0])
+    return speedplot
     
 def create_gaussian_array(size):
     x, y = np.meshgrid(np.linspace(-1,1,size), np.linspace(-1,1,size)) 
@@ -144,9 +156,6 @@ def save_video(img_array, name, size_x, size_y):
     video.release()
     
 def save_to_folder(images,resized):
-    x = np.linspace(0,max_x,max_x)
-    speedplot = assign_speed(x,max_x)
-    speedplot = speedplot.reshape([final_size_x, speedplot.shape[0]//final_size_x]).mean(1)
     root = "data"
     if not os.path.exists(root):
         os.mkdir(root)
@@ -157,7 +166,7 @@ def save_to_folder(images,resized):
     print("Saving in folder:" + name + str(num))
     path = os.path.join(root,name + str(num))
     os.mkdir(path)
-    plot_speed_curve()
+    speedplot = plot_speed_curve()
     plt.savefig(os.path.join(path,"speed_plot.png"))
     np.savetxt(os.path.join(path,"speedplot.csv"), speedplot, delimiter=",")
     f = open(os.path.join(path,"settings.txt"), 'w')
