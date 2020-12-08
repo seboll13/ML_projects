@@ -53,7 +53,9 @@ The best solution to analyze such data is to create a 3D convolutional neural ne
 \end{enumerate}
 
 \section{Synthetic data generation}
-% TODO EXPLAIN SYNTHETIC DATA
+We decided to create a script that generate artificial data for two reasons: First is that the real dataset would take some time for the lab to prepare, and then more importantly it would give us a controlled environment with no noise or imprecision. 
+With the advices of the lab, we generate these data in the following way: We draw a large canvas (typically 480x480), and fill it with gaussian arrays of varying size; A portion of these arrays are negative. To draw a frame, all the arrays are summed in the canvas; then, a smaller window at the center is taken and downsized until it reaches the final size of 10x12.
+To update the position of these arrays, they are attributed a vertical speed given their horizontale coordinate, and at each frame their new positions are calculated by adding this speed. The function used to assign these speeds is a tanh, with several settings to modify it's behavior. 
 
 \section{Model training}
 \subsection{Finding the correct architecture}
