@@ -1,6 +1,7 @@
 project2/env_name/
 project2/data/synthetic_data_*/
 project2/data/data/synthetic_data_*/
+*.pickle
 *.mat
 *.csv
 *.DS_Store
