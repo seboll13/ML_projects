@@ -39,9 +39,21 @@ class Dataset(data.Dataset):
                     np_brt_arr = np.asarray(brt_arr)
                     np_brt_arr = np.nan_to_num(np_brt_arr)
                     np_brt_arr *= (255.0/np_brt_arr.max())
+                    
+                    col_r = np.sort(col_r)
+                    indices = np.argsort(col_r)
+                    speedplot = np.asarray(vz_from_wk)[indices]
+                    shear = list(i if col_r[i]==col_r[i+1] else -1 for i in range(0,len(col_r)-1))
+                    shear = list(value for value in shear if value != -1)
+                    if not shear:
+                        raise ValueError("Error: the column speed listing in " + file 
+                                 + " did not have correct position information")
+                    shear = shear[0]
+                    if speedplot[shear] > 0 and speedplot[shear+1] < 0:
+                        speedplot[shear], speedplot[shear+1] = speedplot[shear+1],speedplot[shear]
                     for s in range(0,math.floor(shot/self.input_nb)):
                         self.img_sets.append(np_brt_arr[:,:,s*self.input_nb:(s+1)*self.input_nb])
-                        self.speedplots.append(np.asarray(vz_from_wk))
+                        self.speedplots.append(speedplot)
         
         zipped = list(zip(self.img_sets,self.speedplots))
         random.shuffle(zipped)

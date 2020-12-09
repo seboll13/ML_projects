@@ -56,9 +56,11 @@ The best solution to analyze such data is to create a 3D convolutional neural ne
 We decided to create a script that generate artificial data for two reasons: First is that the real dataset would take some time for the lab to prepare, and then more importantly it would give us a controlled environment with no noise or imprecision. 
 With the advices of the lab, we generate these data in the following way: We draw a large canvas (typically 480x480), and spawn in randomly gaussian arrays of varying size; A portion of these arrays are negative. To draw a frame, all the arrays are summed in the canvas; then, a smaller window at the center is taken and downsized until it reaches the final size of 10x12.
 To update the position of these arrays, they are attributed a vertical speed given their horizontale coordinate, and at each frame their new positions are calculated by adding this speed. The function used to assign these speeds is a tanh, with several settings to modify it's behavior. 
-To get the labels, we can simply average the speed function for each "column".
+To get the labels, we can simply average this speed function over each column of the final window.
 
-This method gets reasonably close to how the real data looks; We can get away with this relatively simple 
+Everytime the script is run, it will generate a new folder inside data/, where it will put the final frames, the labels, and various other infos for debuging and reproducability purpose (like a speedplot, a list of settings, and a video of all the frames).
+
+This method gets reasonably close to how the real data looks, and we can get away with a few simplification: for instance, the shear layer is always vertical, and the speed we want is only per column; so we only need to deal with speed in Z.
 
 \section{Model training}
 \subsection{Finding the correct architecture}
