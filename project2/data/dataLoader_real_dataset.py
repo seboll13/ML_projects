@@ -33,7 +33,7 @@ class Dataset(data.Dataset):
                     self.filelist.remove(file)
                     print(file + " had NaN in labels and was not included in the dataset")
                 else:
-                    if shot/self.input_nb < 1:
+                    if len(t_window)/self.input_nb < 1:
                         raise ValueError("Error: not enough frames in file " + file 
                                  + " for at least one input(" + str(self.input_nb) + " frames)")
                     np_brt_arr = np.asarray(brt_arr)
@@ -51,7 +51,7 @@ class Dataset(data.Dataset):
                     shear = shear[0]
                     if speedplot[shear] > 0 and speedplot[shear+1] < 0:
                         speedplot[shear], speedplot[shear+1] = speedplot[shear+1],speedplot[shear]
-                    for s in range(0,math.floor(shot/self.input_nb)):
+                    for s in range(0,math.floor(len(t_window)/self.input_nb)):
                         self.img_sets.append(np_brt_arr[:,:,s*self.input_nb:(s+1)*self.input_nb])
                         self.speedplots.append(speedplot)
         
