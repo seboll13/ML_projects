@@ -11,7 +11,7 @@ import sys
 #Save full size video (can be a lot of data)
 save_video_canvas = False
 #Seed for blob size and position
-seed = 1
+seed = 5
 np.random.seed(seed)
 #size of canvas
 max_x = 480    
@@ -31,7 +31,7 @@ negative_ratio = 0.5
 sigma = 0.2
 muu = 0.000
 #speedplot parameters for tanh
-shift = 0    #shift the center of the tanh, in pixels
+shift = -40    #shift the center of the tanh, in pixels
 magnitude = 10     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
 compression = 3    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
 #number of iterations
@@ -184,6 +184,9 @@ def main():
     print("Creating gaussian structures...")
     structs = create_structures(max_x, max_y, amount)
     canvas = draw_structs(structs,max_x,max_y)
+    
+    print("Using seed : ", seed)
+    print("Using shift : ", shift)
     
     arrays = [canvas]
     images = [draw(canvas)]
