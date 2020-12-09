@@ -15,7 +15,7 @@ class Dataset(data.Dataset):
         
         self.input_nb = nb_of_input_images
         self.training = False
-        self.root = 'data'
+        self.root = 'data/data'
         
         self.filelist=os.listdir(self.root)
         for file in self.filelist[:]: # filelist[:] makes a copy of filelist.

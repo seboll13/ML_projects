@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[15]:
-
-
 import sys
 
 import torch
@@ -12,28 +6,24 @@ import torch.optim as optim
 import torchvision.models as models
 from torch.utils import data
 
-from data.dataLoader_synthetic_dataset import Dataset
+from data.dataLoader_real_dataset import Dataset
 from model.architectures.resnet import resnet101
 
 
-# In[21]:
-
+num_classes = 13
 
 def get_model(model_name):
     if model_name == 'resnet_3d':
-        net = models.video.r3d_18(pretrained=False, num_classes=12)
+        net = models.video.r3d_18(pretrained=False, num_classes=num_classes)
     elif model_name == 'resnet_mixed_conv':
-        net = models.video.mc3_18(pretrained=False, num_classes=12)
+        net = models.video.mc3_18(pretrained=False, num_classes=num_classes)
     elif model_name == 'resnet_2_1d':
-        net = models.video.r2plus1d_18(pretrained=False, num_classes=12)
+        net = models.video.r2plus1d_18(pretrained=False, num_classes=num_classes)
     elif model_name == 'resnet_101':
-        net = resnet101(num_classes=12)
-    else :
+        net = resnet101(num_classes=num_classes)
+    else:
         sys.exit('Error: Incorrect model name')
     return net
-
-
-# In[22]:
 
 
 def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
@@ -60,9 +50,6 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
             with open(model_name + "_train.txt","a") as f_train:
                 f_train.write(str(loss.item()) + "\n")
     print('Finished training')
-
-
-# In[23]:
 
 
 def evaluate(model, device, validation_loader, loss_func, model_name):
@@ -93,9 +80,6 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
     return test_loss
 
 
-# In[28]:
-
-
 def main():
     # Training settings
     args = {
@@ -104,7 +88,7 @@ def main():
         "epochs" : 20, 
         "gamma" : 0.07, 
         "log-interval" : 100,
-        "lr" : 0.1, 
+        "lr" : 0.01, 
         "model_name" : "resnet_2_1d",
         "seed" : 1,
         "step_size" : 10,
@@ -117,14 +101,13 @@ def main():
 
     # CUDA for PyTorch
     device = torch.device("cpu") # GPU if possible
-    print(device)
     
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
-    training_set = Dataset('train', nb_of_input_images = 100)
-    train_loader = data.DataLoader(training_set, batch_size=args['batch_size'], shuffle=True, num_workers=4)
+    training_set = Dataset('train')
+    train_loader = data.DataLoader(training_set, batch_size=args['batch_size'], shuffle=True, num_workers=0)
     
-    validation_set = Dataset('validation', nb_of_input_images = 100)
+    validation_set = Dataset('validation')
     validation_loader = data.DataLoader(
         validation_set, batch_size=args['batch_size'], shuffle=True, **kwargs
     )
@@ -149,7 +132,7 @@ def main():
     model.to(device)
 
     # construct an optimizer
-    optimizer = optim.Adam(model.parameters(), lr=args['lr'])
+    optimizer = optim.SGD(model.parameters(), lr=args['lr'])
     # and a learning rate scheduler
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                     step_size=args['step_size'],
@@ -172,15 +155,5 @@ def main():
         lr_scheduler.step()
     
 
-
-# In[25]:
-
-
 if __name__ == '__main__':
     main()
-
-
-
-
-
-

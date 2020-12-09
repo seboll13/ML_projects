@@ -1,4 +1,4 @@
-\documentclass[10pt,conference,compsocconf]{IEEEtran}
+\documentclass[10pt,conference]{IEEEtran}
 
 \usepackage[utf8]{inputenc}
 \usepackage{cite}
@@ -25,15 +25,27 @@ Gas Puff Imaging (GPI) is a technique that involves pushing gas in a tokamak in 
 The primary goal of this project is to understand and implement machine learning methods that can help us detect the shear layer more easily, that is, the separation at which the direction of the flow of particles changes. The idea is to implement a 3D Convolutional Neural Network on the data set that can analyze a sequence of images easily, all this in order to facilitate the distinguishibility of the different flows \cite{velocitycnn}.
 
 \section{Data importation and manipulation}
-We were first given a matlab file with all necessary data to use for the project. The data given consists of four sets described down below. In order to prepare the data to become an input parameter, we have created a python script that reads the data from the .mat file and creates a numpy array from each part of the given file. Then, these arrays are written into four separate csv files, one for each category. The four relevant data sets given are:
+\subsection{Initial data}
+We were initially given a matlab file with all necessary data to use for the project. The data given consists of four sets described down below. In order to prepare the data to become an input parameter, we have created a python script that reads the data from the .mat file and creates a numpy array from each part of the given file. Then, these arrays are written into four separate csv files, one for each category. The four relevant data sets given are:
 \begin{enumerate}
   \item \texttt{r\_arr} a 10 by 12 matrix of radiuses.
   \item \texttt{z\_arr} the corresponding array of the z-axis values.
-  \item \texttt{t\_window} the array of times at which a particular value was measured
-  \item \texttt{brt\_arr} the 3d-array (10x12x200000) of each individual experiment.
+  \item \texttt{t\_window} the array of times at which a particular value was measured.
+  \item \texttt{brt\_arr} the 3d-array (10x12x200000) of brightnesses.
 \end{enumerate}
-We will be interested in the \texttt{brt\_arr} which contains each individual experiment that has been done accross a one second time lapse. The frequency at which the images are taken is a fixed $2MHz$, thus one frame is taken every 500 nano-seconds approximately. Each frame will be analyzed by our algorithm in order to determine the velocity of each particle in the frame and its corresponding direction.\par
-The best solution to analyze such data is to create a 3D convolutional neural net (CNN) that are highly used for video analysis such as security camera footage. A CNN consists of processing layers that are used to reduce an image to its key features in order for it to be more easily classified. These three layers are:
+We will be interested in the \texttt{brt\_arr} which contains each individual experiment that has been done accross a one second time lapse. The frequency at which the images are taken is a fixed $2MHz$, thus one frame is taken every 500 nano-seconds approximately. Each frame will be analyzed by our algorithm in order to determine the velocity of each particle in the frame and its corresponding direction.
+\subsection{Follow up data}
+Then, we were given more precise data and in bigger quantity in order for us to improve the training of the model. In complement of the data we have already received, we were given additional information required for the training such as:
+\begin{enumerate}
+  \item \texttt{vz\_from\_wk} the vertical speed for each column of data, given in km/s.
+  \item \texttt{vz\_err\_from\_wk} the error of the velocity estimation.
+  \item \texttt{col\_r} the average $r$-coordinate for each column.
+\end{enumerate}
+This time, both \texttt{vz} arrays have a $(13,)$ dimension because the middle column contained both positive and negative velocities, as its closest to the shear layer.\par
+We were also given a small python script that loaded the data into python so that we could use it directly for the training. However, the script was in Python 2.7 so we had to modify it a little in order for it to be compatible with our current Python version, which is 3.6.
+
+\subsection{How to treat it ?}
+The best solution to analyze such data is to create a 3D convolutional neural net (CNN), method that is widely used for video analysis, a security camera footage for example. A CNN consists of processing layers that are used to reduce an image to its key features in order for it to be more easily classified. These three layers are:
 \begin{enumerate}
   \item the convolution layer, in which the images are translated into processable data,
   \item the pooling layer which progressively reduces the spatial size of the data in order to reduce the amount of parameters and computation in the network, and

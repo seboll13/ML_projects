@@ -11,7 +11,7 @@ import sys
 #Save full size video (can be a lot of data)
 save_video_canvas = False
 #Seed for blob size and position
-seed = 1
+seed = 0
 np.random.seed(seed)
 #size of canvas
 max_x = 480    
