@@ -11,7 +11,7 @@ import sys
 #Save full size video (can be a lot of data)
 save_video_canvas = False
 #Seed for blob size and position
-seed = 5
+seed = 0
 np.random.seed(seed)
 #size of canvas
 max_x = 480    
@@ -65,13 +65,21 @@ def plot_speed_curve():
 
     # plot the function
     plt.plot(x,y, 'r')
-    interval = math.floor(max_x/final_size_x)
+    
+    begining = math.floor((max_x/2) - (window/2))
+    end = math.floor((max_x/2) + (window/2))
+    x = np.linspace(0,max_x,max_x)[begining:end]
+    
+    y = assign_speed(x,max_x)
+    
+    interval = math.floor(window/final_size_x)
     columns = []
     for i in range(0,13):
         columns.append(i*interval)
     zero_crossing = np.where(np.diff(np.sign(y)))[0][0] + 1
     columns.append(zero_crossing)
     columns.sort()
+    print(columns)
     speedplot = []
     for i in range(0,len(columns)-1):
         b = columns[i+1]-columns[i]
