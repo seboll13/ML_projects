@@ -104,11 +104,10 @@ def test(model, device, test_loader, loss_func, model_name):
             
             path = os.path.join(results_folder, model_name + "_test.txt") 
             with open(path, "a") as f_test:
-                f_test.write(str(test_loss.item()) + "\n")
+                f_test.write(str(loss.item()) + "\n")
                 
             path = os.path.join(results_folder, model_name + "_test_results.txt") 
             with open(path,"a") as f_test:
-                f_test.write(str(loss.item()) + "\n")
                 f_test.write('[')
                 for i in range(len(target)):
                     f_test.write(str(target[i]))
@@ -124,9 +123,10 @@ def test(model, device, test_loader, loss_func, model_name):
                         f_test.write(', ')
                     
                 f_test.write('] \n')
-                f_test.write('\n')
                 
     print('Finished test prints')
+    test_loss /= len(test_loader.dataset)
+    
     return test_loss
 
 def main():
