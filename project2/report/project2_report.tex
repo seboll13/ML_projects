@@ -19,12 +19,13 @@
 \begin{abstract}
   A tokamak is a type of plasma generator, inside which plasma turns at very high speeds. The plasma is confined in the shape of a torus via magnetic fields, at the edges of which it becomes turbulent; this is called the shear layer. These turbulences might create "blobs" of plasma, that can be ejected at high speed and damage the tokamak.\par
   Gas Puff Imaging (GPI) is a technique used to study these turbulences: it consists in launching a puff of neutral gas near the shear layer, to generate light emissions when mixing up with the plasma and thus allowing imaging of the turbulent structures.\par
-  Throughout this project, there will be mention of R-axis and Z-axis: those are the radial and height defined from the center of the torus' ring. When looking at GPI images, you can imagine them to be equivalent to the X and Y axis, respectively.
+  The primary goal of this project is to understand and implement machine learning methods that take GPI images and correctly measure the $z$-axis velocity (parallel to the shear layer) of the moving, turbulent structures. We will for the purpose create a 3D convolutional neural network (CNN) that is a perfect structure used in machine learning to analyze video data.
 \end{abstract}
 
 \section{Introduction}
-Gas Puff Imaging analysis is a ongoing task, and can yield important results. The Swiss Plasma Center lab at EPFL was interested in the new possibilities machine learning could bring, and together we worked to test how well a neural net could analyze the GPI images.
-The primary goal of this project is to understand and implement machine learning methods that take GPI images and correctly measure the $z$-axis velocity (parallel to the shear layer) of the moving, turbulent structures.
+Gas Puff Imaging analysis is an ongoing task, and can yield important results. It involves pushing gas in a tokamak in order to study the turbulence present at the edge of magnetically confined plasmas. It uses a puff of neutral gas so we can increase the local light emission level in order to improve optical imaging of the space-time structure of the edge plasma turbulence.\par
+The Swiss Plasma Center lab at EPFL was interested in the new possibilities machine learning could bring, and together we worked to test how well a neural net could analyze the GPI images.\par
+So the main goal of this project as already mentionned is to implement a 3D CNN in order to analyze a sequence of images easily and thus facilitate the distinguishibility of the different flows and the detection of the shear layer. Note that throughout the project, there will be mention of $r$-axis and $z$-axis: those are the radius and height defined from the center of the torus' ring. When looking at GPI images, you can imagine them to be equivalent to the $x$ and $y$ axis, respectively.
 \section{Data and preprocessing}
 \subsection{Synthetic data generation}
 We have decided to create a script that generates artificial data mainly for two reasons: 
@@ -64,7 +65,7 @@ We implemented two different Dataloaders for using real or synthetic data:
 Due to time constraints, we only could use part of all these sets: \texttt{t\_window}, \texttt{r\_arr}, \texttt{z\_arr} and \texttt{vz\_err\_from\_wk} were not taken into consideration for our algorithm. Moreover, we had to ignore datasets where the 13th column was missing as described above, as that would have required us to change our approach to semi-supervised learning.
 
 \subsection{How to treat it ?}
-The best solution to analyze such data is to create a 3D convolutional neural net (CNN), method that is widely used for video analysis, a security camera footage for example. A CNN consists of processing layers that are used to reduce an image to its key features in order for it to be more easily classified. These three layers are:
+The best solution to analyze such data is to create a 3D convolutional neural net (CNN), method that is widely used for video analysis, a security camera footage for example. A CNN consists of processing layers that are used to reduce an image to its key features in order for it to be more easily classified \cite{velocitycnn}. These three layers are:
 \begin{enumerate}
   \item the convolution layer, in which the images are translated into processable data,
   \item the pooling layer which progressively reduces the spatial size of the data in order to reduce the amount of parameters and computation in the network, and
@@ -94,6 +95,9 @@ As mentionned earlier, the real data is the one in the pickle files that we were
   \item After that, we use our adapted DataLoader script to load the specified training, validating and testing data.
   \item Finally, after loading the model and specifying additional parameters, the algorithm starts and is run for 20 epochs.
 \end{enumerate}
+
+\section{Results}
+% PUT PLOTS HERE
 
 \section{Conclusion}
 
