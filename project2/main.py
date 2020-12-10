@@ -1,5 +1,4 @@
 import sys
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -32,7 +31,6 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
         data = data.type(torch.float32).to(device)
         target = target.to(device)
         optimizer.zero_grad()
-        
         output = model(data)
         loss = loss_func(output.float(), target.float())
         loss = torch.sqrt(2 * loss)
@@ -85,6 +83,7 @@ def main():
     args = {
         "batch_size" : 2,
         "test_batch_size" : 1, 
+        "frames_per_datapoint": 1000,
         "epochs" : 20, 
         "gamma" : 0.07, 
         "log-interval" : 100,
@@ -100,7 +99,7 @@ def main():
     torch.manual_seed(args["seed"])
 
     # CUDA for PyTorch
-    device = torch.device("cpu") # GPU if possible
+    device = torch.device("cuda" if use_cuda else "cpu") # GPU if possible
     
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
@@ -140,6 +139,8 @@ def main():
 
     num_epochs = args['epochs']
 
+    
+    
 #     best_val_loss = float("inf")
 #     best_model = copy.deepcopy(model)
 #     best_epoch = 0

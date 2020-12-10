@@ -39,6 +39,7 @@ class Dataset(data.Dataset):
                     np_brt_arr = np.asarray(brt_arr)
                     np_brt_arr = np.nan_to_num(np_brt_arr)
                     np_brt_arr *= (255.0/np_brt_arr.max())
+                    np_brt_arr = np_brt_arr.astype(np.uint8)
                     
                     col_r = np.sort(col_r)
                     indices = np.argsort(col_r)
@@ -71,7 +72,9 @@ class Dataset(data.Dataset):
             self.training = True
         else:
             raise ValueError("Wrong usage specified; Only train,validation,test or all")
-    
+        
+        #self.img_sets = self.img_sets[:1]
+        
     def __len__(self):
         return len(self.img_sets)
     

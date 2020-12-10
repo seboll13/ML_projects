@@ -10,6 +10,8 @@ import sys
 #Settings 
 #Save full size video (can be a lot of data)
 save_video_canvas = False
+#Save video of output
+save_video_output = False
 #Seed for blob size and position
 seed = 0
 np.random.seed(seed)
@@ -31,11 +33,11 @@ negative_ratio = 0.5
 sigma = 0.2
 muu = 0.000
 #speedplot parameters for tanh
-shift = 0    #shift the center of the tanh, in pixels
+shift = -100    #shift the center of the tanh, in pixels
 magnitude = 10     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
 compression = 3    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
 #number of iterations
-iterations = 200
+iterations = 17800
 
 settings = (("seed",seed),("max_x",max_x),("max_y",max_y),("window",window),("final_size_x",final_size_x),("final_size_y",final_size_y),
 ("amount",amount),("min_size",min_size),("max_size",max_size),("negative_ratio",negative_ratio),("sigma",sigma),("muu",muu),
@@ -163,7 +165,17 @@ def save_video(img_array, name, size_x, size_y):
     cv2.destroyAllWindows()
     video.release()
     
-def save_to_folder(images,resized):
+def save_to_folder(array,path,name):
+    if name == "resized_window.avi":
+        save_video(array,os.path.join(path , name),max_x,max_y)
+    if name == "resized_window.avi":
+        save_video(array,os.path.join(path , name),final_size_x,final_size_y)
+    
+
+def main():
+    print("Creating gaussian structures...")
+    structs = create_structures(max_x, max_y, amount)
+    
     root = "data"
     if not os.path.exists(root):
         os.mkdir(root)
@@ -182,29 +194,32 @@ def save_to_folder(images,resized):
         line = ' '.join(str(x) for x in t)
         f.write(line + '\n')
     f.close()
-    if save_video_canvas:
-        save_video(images,os.path.join(path , "full_canvas.avi"),max_x,max_y)
-    save_video(resized,os.path.join(path , "resized_window.avi"),final_size_x,final_size_y)
-    for i in range(0,len(resized)):
-        resized[i].save(os.path.join(path, "frame_" + str(i) + ".png"))
-
-def main():
-    print("Creating gaussian structures...")
-    structs = create_structures(max_x, max_y, amount)
-    canvas = draw_structs(structs,max_x,max_y)
     
-    arrays = [canvas]
-    images = [draw(canvas)]
-    resized = [draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x))]
+    canvas = draw_structs(structs,max_x,max_y)
+    image = draw(canvas)
+    resized = draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x))
+    
+    if save_video_canvas:
+        images = [image]
+    if save_video_output:
+        resizeds = [resized]
     print("Calculating all iterations...")
     for i in range(0,iterations-1):
+        if i % 100 == 0:
+            print("Iteration: " + str(i))
+        resized.save(os.path.join(path, "frame_" + str(i) + ".png"))
         structs = update_structs(structs, 1, max_x, max_y)
         canvas = draw_structs(structs,max_x,max_y)
-        arrays.append(canvas)
-        images.append(draw(canvas))
-        resized.append(draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x)))
-    print("Saving to folder...")
-    save_to_folder(images, resized)
+        resized = draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x))
+        if save_video_canvas:
+            images.append(draw(canvas))
+        if save_video_output:
+            resizeds.append(resized)
+    if save_video_canvas:
+        save_to_folder(images,path,"full_canvas.avi")
+    if save_video_output:
+        save_to_folder(resizeds,path,"resized_window.avi")
+    
     
 if __name__ == '__main__':
     print("Initialization...")
