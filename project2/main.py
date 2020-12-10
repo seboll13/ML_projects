@@ -21,8 +21,8 @@ num_classes = 13
 model_name = "resnet_2_1d"
 
 # Dataloader parameters
-train_on_synthetic_data = True
-nb_of_input_images = 100
+train_on_synthetic_data = False
+nb_of_input_images = 1000
 
 use_cuda = False & torch.cuda.is_available() # False: CPU, True: GPU
 
@@ -160,7 +160,6 @@ def main():
     args = {
         "batch_size" : 2,
         "test_batch_size" : 1, 
-        "frames_per_datapoint": 1000,
         "epochs" : 20, 
         "gamma" : 0.07, 
         "log-interval" : 100,
