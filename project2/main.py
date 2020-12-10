@@ -17,6 +17,7 @@ from model.architectures.resnets import r2plus1d_18
 
 
 num_classes = 13
+train_on_synthetic_data = True
 
 results_folder = "results"
 
@@ -47,7 +48,7 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
         optimizer.step()
         if batch_idx == 0:
             print('\n One training output example:')
-            print(target)
+            print(target.int8())
             print(output, '\n')
             
         print('[epoch %d, batch_idx %2d] => average datapoint and batch loss : %.2f' % (epoch+1, batch_idx, loss.item()))
@@ -75,7 +76,7 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
             
             if batch_idx == 0:
                 print('\n One validation output example:')
-                print(target)
+                print(target.int8())
                 print(output)
 
     test_loss /= len(validation_loader.dataset)
@@ -116,7 +117,7 @@ def test(model, device, test_loader, loss_func, model_name):
             with open(path,"a") as f_test:
                 f_test.write('[')
                 for i in range(len(target)):
-                    f_test.write(str(target[i]))
+                    f_test.write(str(target.uint8()[i]))
                     if i < len(target) - 1:
                         f_test.write(', ')
                     
@@ -158,13 +159,19 @@ def main():
     device = torch.device("cuda" if use_cuda else "cpu") # GPU if possible
     print('Using device: ', device)
 
-    training_set = SyntheticDataset('train', nb_of_input_images = 100)
+    
+    if train_on_synthetic_data:
+        training_set = SyntheticDataset('train', nb_of_input_images = 100)
+        validation_set = SyntheticDataset('validation', nb_of_input_images = 100)
+        test_set = SyntheticDataset('test', nb_of_input_images = 100)
+    else :
+        training_set = RealDataset('train')
+        validation_set = RealDataset('validation')
+        test_set = RealDataset('test')
+    
+    
     train_loader = data.DataLoader(training_set, batch_size=args['batch_size'], shuffle=True, num_workers=4)
-    
-    validation_set = SyntheticDataset('validation', nb_of_input_images = 100)
     validation_loader = data.DataLoader(validation_set, batch_size=args['batch_size'], shuffle=True, num_workers=1)
-    
-    test_set = SyntheticDataset('test', nb_of_input_images = 100)
     test_loader = data.DataLoader(test_set, batch_size=args['test_batch_size'], shuffle=False)
     
     
