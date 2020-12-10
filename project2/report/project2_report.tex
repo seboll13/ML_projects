@@ -17,58 +17,60 @@
 \maketitle
 
 \begin{abstract}
-  A tokamak is a type of plasma generator, inside which plasma turns at very high speeds. The plasma is confined in the shap of a torus via magnetic fields, at the edges of which it becomes turbulent; this is called the shear layer. These turbulences might create "blobs" of plasma, that can be ejected at high speed and damage the tokamak.\par
+  A tokamak is a type of plasma generator, inside which plasma turns at very high speeds. The plasma is confined in the shape of a torus via magnetic fields, at the edges of which it becomes turbulent; this is called the shear layer. These turbulences might create "blobs" of plasma, that can be ejected at high speed and damage the tokamak.\par
   
-  Gas Puff Imaging (GPI) is a technique used to study these turbulences: It consist in launching a puff of neutral gas near the shear layer, to generate light emissions when mixing up with the plasma and thus allowing imaging of the turbulent structures.\par
+  Gas Puff Imaging (GPI) is a technique used to study these turbulences: it consists in launching a puff of neutral gas near the shear layer, to generate light emissions when mixing up with the plasma and thus allowing imaging of the turbulent structures.\par
 
   Throughout this project, there will be mention of R-axis and Z-axis: those are the radial and height defined from the center of the torus' ring. When looking at GPI images, you can imagine them to be equivalent to the X and Y axis, respectively.
-
 \end{abstract}
 
 \section{Introduction}
-Analyzing Gas Puff Imaging is a ongoing task, and can yields important results. The Swiss Plasma Center lab at EPFL were interested in the new possibilities machine learning could bring, and together we worked to test how well a neural net could analyze the GPI images.
-So the primary goal of this project is to understand and implement machine learning methods that take GPI images and correctly measure the Z-axis velocity (parallel to the shear layer) of the moving, turbulent structures.
+Gas Puff Imaging analysis is a ongoing task, and can yield important results. The Swiss Plasma Center lab at EPFL was interested in the new possibilities machine learning could bring, and together we worked to test how well a neural net could analyze the GPI images.
+The primary goal of this project is to understand and implement machine learning methods that take GPI images and correctly measure the $z$-axis velocity (parallel to the shear layer) of the moving, turbulent structures.
 \section{Data and preprocessing}
 \subsection{Synthetic Data}
-We decided to create a script that generate artificial data for two reasons: First is that the real dataset would take some time for the lab to prepare, and then more importantly it would give us a controlled environment with no noise or imprecision in the labels.
-That means we could get a good idea of how well our architecture works, and later try to use it in combination with the real dataset to help it learn.\par
+We decided to create a script that generates artificial data for two reasons: 
+\begin{enumerate}
+  \item First of all, the real dataset would take some time for the lab to prepare, but
+  \item more importantly it would give us a controlled environment with no noise or imprecision in the labels.
+\end{enumerate}
+This overall means that we could get a good idea of how well our architecture works, and later try to use it in combination with the real dataset to help it learn.\par
+With the advices of the lab directors, we decided to generate this data in the following way: we draw a large canvas (typically 480x480), and spawn in randomly gaussian arrays of varying size. Note that a portion of these arrays are negative. To draw a frame, all the arrays are summed in the canvas. Then, a smaller window at the center is taken and downsized until it reaches the final size of 10x12.\par
+To update the position of these arrays, they are attributed a vertical speed given their horizontal coordinate, and at each frame their new positions are calculated by adding this speed. The function used to assign these speeds is the hyperbolic tangent, with several settings to modify its behavior. To get the labels, we can simply average this speed function over each column of the final window.\par
+Everytime the script is run, it will generate a new folder inside \texttt{data/}, where it will put the final frames, the labels, and various other information for debuging and for reproducibility purposes (like a speedplot, a list of settings, and a video of all the frames).
 
-With the advices of the lab, we generate these data in the following way: We draw a large canvas (typically 480x480), and spawn in randomly gaussian arrays of varying size; A portion of these arrays are negative. To draw a frame, all the arrays are summed in the canvas; then, a smaller window at the center is taken and downsized until it reaches the final size of 10x12.
-To update the position of these arrays, they are attributed a vertical speed given their horizontale coordinate, and at each frame their new positions are calculated by adding this speed. The function used to assign these speeds is a tanh, with several settings to modify it's behavior. 
-To get the labels, we can simply average this speed function over each column of the final window.
-
-Everytime the script is run, it will generate a new folder inside data/, where it will put the final frames, the labels, and various other infos for debuging and reproducability purpose (like a speedplot, a list of settings, and a video of all the frames).
-
-This method gets reasonably close to how the real data looks, and we can get away with a few simplification: for instance, the shear layer is always vertical, and the speed we want is only per column; so we only need to deal with speed in Z.
+This method gets reasonably close to how the real data looks like, and we can get away with a few simplifications. For instance, the shear layer is always vertical, and the speed we want is only per column, so we therefore only need to deal with the speed in $z$.
 
 \subsection{Real Data Description}
-The labeled data was given to us from the lab in pickle files, inside which there are the followin sets:
+The labeled data was given to us from the lab in pickle files, inside which there are the following sets:
 \begin{enumerate}
-  \item \texttt{shot} Shot number.
-  \item \texttt{t\_window} An array of timestamps at which the frames were measured. $(unit: sec)$
-  \item \texttt{brt\_arr} 3d-array (12x10xlength of \texttt{t\_window}) of brightnesses of each frames. $(unit: mW/cm^2/ster)$
-  \item \texttt{r\_arr}  Array of r-coordinate of each view. $(unit: m)$
-  \item \texttt{z\_arr}  Array of z-coordinate of each view. $(unit: m)$
-  \item \texttt{vz\_from\_wk} Vertical speed for each column of data. $(unit: km/s)$
-  \item \texttt{vz\_err\_from\_wk} Error of the estimation of vz.
-  \item \texttt{col\_r} the average $r$-coordinate or each column.
+  \item \texttt{shot} The shot number.
+  \item \texttt{t\_window} An array of timestamps at which the frames were measured (in seconds)
+  \item \texttt{brt\_arr} A 3D-array (12x10x$l$) where $l$ is the length of \texttt{t\_window}) of brightnesses of each frame, measured in $mW/cm^2/ster)$
+  \item \texttt{r\_arr} The array of $r$-coordinate of each view, in meters.
+  \item \texttt{z\_arr}  The similar array of $z$-coordinate of each view, also in meters.
+  \item \texttt{vz\_from\_wk} The vertical speed for each column of data, in $km/s$.
+  \item \texttt{vz\_err\_from\_wk} The error of the estimation of vz, and
+  \item \texttt{col\_r} the average $r$-coordinate of each column.
 \end{enumerate}
-Due to the measurment method, four specific "pixels" of \texttt{brt\_arr} are set to NaN permanently. \texttt{r\_arr} and \texttt{z\_arr} describe the exact position of each pixels of \texttt{brt\_arr} in 2d space, as they are not perfectly spaced. \texttt{vz\_from\_wk} will constitue the labels for the algorithm. 
-Importantly, there are 13 values in \texttt{vz\_from\_wk},\texttt{vz\_err\_from\_wk} and \texttt{col\_r} while there are only 12 columns per frames: this is because the shear layer we want to calculate is inside one of the column, which means this column will have flows going both way; thus this column will have two speed associated to it. It also means \texttt{col\_r} has two identical values, as they concern the same column.
+Due to the measurement method, four specific "pixels" of \texttt{brt\_arr} are set to NaN permanently. The \texttt{r\_arr} and \texttt{z\_arr} describe the exact position of each pixels of \texttt{brt\_arr} in a 2d space, as they are not perfectly spaced. \texttt{vz\_from\_wk} will constitute the labels for the algorithm.\par
+Importantly, there are 13 values in \texttt{vz\_from\_wk}, \texttt{vz\_err\_from\_wk} and \texttt{col\_r} while there are only 12 columns per frames: this is because the shear layer we want to calculate is inside one of the column, which means this column will have flows going both way. Thus, this column will have two speeds associated to it. It also means that \texttt{col\_r} has two identical values, as they concern the same column.
 Note that it wasn't possible for the lab to provide good estimates of these two speeds in all datasets, and the 13th column will be set to NaN if they couldn't get an accurate estimation. 
+
 \subsection{Data Manipulation and Preprocessing}
-We implemented two different Dataloaders for using real or synthetic data: The synthetic one doesn't do anything special, as the synthetic data is already generated in a convenient way; it simply fetchs all the frames and labels, organize them in datapoints compatible with the architecture, and shuffles the order of these datapoints to homogenize scenarios.
-
-The one working with real data, in addition, has to rescale the brightness of the frames to 8-bit greyscale images, and organize the labels to be coherent.
-Due to time constraint, we could only use part of all these sets: \texttt{t\_window},\texttt{r\_arr},\texttt{z\_arr} and \texttt{vz\_err\_from\_wk} were not taken into consideration for our algorithm. Moreover, we had to ignore datasets where the 13th column was missing as described above, as that would have requiered us to change our approach to semi-supervised learning.
-
+We implemented two different Dataloaders for using real or synthetic data: 
+\begin{enumerate}
+  \item The synthetic one doesn't do anything special, as the synthetic data is already generated in a convenient way. It simply fetches all the frames and labels, organizes them in datapoints compatible with the architecture, and shuffles the order of these datapoints to homogenize scenarios.
+  \item The one working with real data, in addition, has to rescale the brightness of the frames to 8-bit greyscale images, and organize the labels to be coherent.
+\end{enumerate}
+Due to time constraints, we only could use part of all these sets: \texttt{t\_window}, \texttt{r\_arr}, \texttt{z\_arr} and \texttt{vz\_err\_from\_wk} were not taken into consideration for our algorithm. Moreover, we had to ignore datasets where the 13th column was missing as described above, as that would have required us to change our approach to semi-supervised learning.
 
 \subsection{How to treat it ?}
 The best solution to analyze such data is to create a 3D convolutional neural net (CNN), method that is widely used for video analysis, a security camera footage for example. A CNN consists of processing layers that are used to reduce an image to its key features in order for it to be more easily classified. These three layers are:
 \begin{enumerate}
   \item the convolution layer, in which the images are translated into processable data,
   \item the pooling layer which progressively reduces the spatial size of the data in order to reduce the amount of parameters and computation in the network, and
-  \item the fully connected layer, in which after all the necessary computation is done, the output layers are flattened, the probabilities identified are analyzed ans the output is assigned a value.
+  \item the fully connected layer, in which after all the necessary computation is done, the output layers are flattened, the probabilities identified are analyzed and the output is assigned a value.
 \end{enumerate}
 
 \section{Model training}
@@ -77,7 +79,12 @@ This part essentially contains the research we have done in order to choose the 
 
 \subsection{Training the model on synthetic data}
 In this section we will describe how we have proceeded to train the model on the synthetic data in order to prepare it for the real data later. Using our data loader script, we import the data we want to use and define a training set, a validation set and a test set.
-\paragraph{Training} This part essentially consists of two main phases: a forward phase and a backward phase. In the forward phase, the input goes through the whole network and in the backward phase, an algorithm is used (back propagation algorithm) to derive the gradients and update the weights of the model. We perform multiple iterations of the training algorithm which are called "epochs" in order to train the model better and decrease the loss as much as possible.
+\paragraph{Training} This part essentially consists of two main phases: a forward phase and a backward phase.
+\begin{enumerate}
+  \item In the forward phase, the input traverses the whole network for the first time.
+  \item In the backward phase, an algorithm is used (back propagation algorithm) to derive the gradients and update the weights of the model.
+\end{enumerate}
+We perform multiple iterations of the training algorithm which are called "epochs" in order to train the model better and decrease the loss as much as possible.
 \paragraph{Evaluation} This part is meant to evaluate how good we have done in the training part. We do this by computing the proportion of correct predictions done.
 \paragraph{Testing} % TODO AFTER TESTING PART
 
