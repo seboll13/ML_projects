@@ -1,4 +1,5 @@
 import sys
+import matplotlib.pyplot as plt
 import os.path
 
 import torch
@@ -10,19 +11,24 @@ from torch.utils import data
 from data.dataLoader_synthetic_dataset import Dataset as SyntheticDataset
 from data.dataLoader_real_dataset import Dataset as RealDataset
 
+from model.architectures.resnets import r3d_18
+from model.architectures.resnets import mc3_18
+from model.architectures.resnets import r2plus1d_18
+
 
 num_classes = 13
 
 results_folder = "results"
 
+
 def get_model(model_name):
     if model_name == 'resnet_3d':
-        net = models.video.r3d_18(pretrained=False, num_classes=num_classes)
+        net = r3d_18(pretrained=False, num_classes=num_classes)
     elif model_name == 'resnet_mixed_conv':
-        net = models.video.mc3_18(pretrained=False, num_classes=num_classes)
+        net = mc3_18(pretrained=False, num_classes=num_classes)
     elif model_name == 'resnet_2_1d':
-        net = models.video.r2plus1d_18(pretrained=False, num_classes=num_classes)
-    else:
+        net = r2plus1d_18(pretrained=False, num_classes=num_classes)
+    else :
         sys.exit('Error: Incorrect model name')
     return net
 
