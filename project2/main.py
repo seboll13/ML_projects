@@ -23,6 +23,8 @@ model_name = "resnet_2_1d"
 # Dataloader parameters
 train_on_synthetic_data = True
 nb_of_input_images = 100
+num_train_workers = 0
+num_valid_workers = 0
 
 use_cuda = False & torch.cuda.is_available() # False: CPU, True: GPU
 
@@ -164,16 +166,18 @@ def main():
 
     
     if train_on_synthetic_data:
+        print("Loading synthetic data...")
         training_set = SyntheticDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = SyntheticDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = SyntheticDataset('test', nb_of_input_images = nb_of_input_images)
     else :
+        print("Loading real data...")
         training_set = RealDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = RealDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = RealDataset('test', nb_of_input_images = nb_of_input_images)
     
-    train_loader = data.DataLoader(training_set, batch_size=batch_size, shuffle=True, num_workers=4)
-    validation_loader = data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=1)
+    train_loader = data.DataLoader(training_set, batch_size=batch_size, shuffle=True, num_workers=num_train_workers)
+    validation_loader = data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_valid_workers)
     test_loader = data.DataLoader(test_set, batch_size=test_batch_size, shuffle=False)
     
     
