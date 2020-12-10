@@ -23,10 +23,10 @@ model_name = "resnet_2_1d"
 # Dataloader parameters
 train_on_synthetic_data = True
 nb_of_input_images = 100
-num_train_workers = 0
-num_valid_workers = 0
+num_train_workers = 4
+num_valid_workers = 1
 
-use_cuda = False & torch.cuda.is_available() # False: CPU, True: GPU
+use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
 
 # Training parameters
 batch_size = 2
@@ -39,6 +39,7 @@ step_size = 10
 # Saving parameters
 results_folder = "results"
 save_model = False
+save_name = ""
 
 
 
@@ -125,6 +126,9 @@ def test(model, device, test_loader, loss_func, model_name):
             loss = loss_func(output.float(), target.float())
             test_loss += loss # sum up batch loss
             
+            
+            target = target.cpu()
+            output = output.cpu()
             target = target.numpy()[0]
             output = output.numpy()[0]
             
@@ -156,6 +160,8 @@ def test(model, device, test_loader, loss_func, model_name):
     test_loss /= len(test_loader.dataset)
     
     return test_loss
+
+
 
 def main():
     torch.manual_seed(1)
@@ -207,7 +213,6 @@ def main():
 #     best_epoch = 0
     print('Training for :', num_epochs, 'epochs')
     for epoch in range(num_epochs):
-        # train for one epoch, printing every 10 iterations
         train(model, device, train_loader, optimizer, loss_func, epoch, model_name)
         average_loss = evaluate(model, device, validation_loader, loss_func, model_name)
 #         if average_loss < best_val_loss:
