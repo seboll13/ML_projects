@@ -23,8 +23,10 @@ model_name = "resnet_2_1d"
 # Dataloader parameters
 train_on_synthetic_data = True
 nb_of_input_images = 100
+num_train_workers = 4
+num_valid_workers = 1
 
-use_cuda = False & torch.cuda.is_available() # False: CPU, True: GPU
+use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
 
 # Training parameters
 batch_size = 2
@@ -37,6 +39,7 @@ step_size = 10
 # Saving parameters
 results_folder = "results"
 save_model = False
+save_name = ""
 
 
 
@@ -73,7 +76,7 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
         print('[epoch %d, batch_idx %2d] => average datapoint and batch loss : %.2f' % (epoch+1, batch_idx, loss.item()))
         
         if batch_idx % 5 == 0:
-            path = os.path.join(results_folder, model_name + "_train.txt") 
+            path = os.path.join(results_folder, model_name + "_train_" + str(num_epochs) + "_" + str(lr) + ".txt") 
             with open(path, "a") as f_train:
                 f_train.write(str(loss.item()) + "\n")
     print('Finished training')
@@ -101,7 +104,7 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
     test_loss /= len(validation_loader.dataset)
     print('\nValidation set: Average loss: {:.4f}\n'.format(test_loss))
     
-    path = os.path.join(results_folder, model_name + "_valid.txt") 
+    path = os.path.join(results_folder, model_name + "_valid_" + str(num_epochs) + "_" + str(lr) + ".txt") 
     with open(path, "a") as f_valid:
         f_valid.write(str(test_loss.item()) + "\n")
     
@@ -123,16 +126,19 @@ def test(model, device, test_loader, loss_func, model_name):
             loss = loss_func(output.float(), target.float())
             test_loss += loss # sum up batch loss
             
+            
+            target = target.cpu()
+            output = output.cpu()
             target = target.numpy()[0]
             output = output.numpy()[0]
             
             # Write out test labels and outputs 
             
-            path = os.path.join(results_folder, model_name + "_test.txt") 
+            path = os.path.join(results_folder, model_name + "_test_" + str(num_epochs) + "_" + str(lr) + ".txt") 
             with open(path, "a") as f_test:
                 f_test.write(str(loss.item()) + "\n")
                 
-            path = os.path.join(results_folder, model_name + "_test_results.txt") 
+            path = os.path.join(results_folder, model_name + "_test_results_" + str(num_epochs) + "_" + str(lr) + ".txt") 
             with open(path,"a") as f_test:
                 f_test.write('[')
                 for i in range(len(target)):
@@ -155,6 +161,8 @@ def test(model, device, test_loader, loss_func, model_name):
     
     return test_loss
 
+
+
 def main():
     torch.manual_seed(1)
 
@@ -164,16 +172,18 @@ def main():
 
     
     if train_on_synthetic_data:
+        print("Loading synthetic data...")
         training_set = SyntheticDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = SyntheticDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = SyntheticDataset('test', nb_of_input_images = nb_of_input_images)
     else :
+        print("Loading real data...")
         training_set = RealDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = RealDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = RealDataset('test', nb_of_input_images = nb_of_input_images)
     
-    train_loader = data.DataLoader(training_set, batch_size=batch_size, shuffle=True, num_workers=4)
-    validation_loader = data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=1)
+    train_loader = data.DataLoader(training_set, batch_size=batch_size, shuffle=True, num_workers=num_train_workers)
+    validation_loader = data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_valid_workers)
     test_loader = data.DataLoader(test_set, batch_size=test_batch_size, shuffle=False)
     
     
@@ -203,7 +213,6 @@ def main():
 #     best_epoch = 0
     print('Training for :', num_epochs, 'epochs')
     for epoch in range(num_epochs):
-        # train for one epoch, printing every 10 iterations
         train(model, device, train_loader, optimizer, loss_func, epoch, model_name)
         average_loss = evaluate(model, device, validation_loader, loss_func, model_name)
 #         if average_loss < best_val_loss:
