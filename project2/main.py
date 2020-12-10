@@ -1,26 +1,54 @@
 import sys
+import matplotlib.pyplot as plt
+import os.path
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.models as models
 from torch.utils import data
 
-from data.dataLoader_real_dataset import Dataset
-from model.architectures.resnet import resnet101
+from data.dataLoader_synthetic_dataset import Dataset as SyntheticDataset
+from data.dataLoader_real_dataset import Dataset as RealDataset
+
+from model.architectures.resnets import r3d_18
+from model.architectures.resnets import mc3_18
+from model.architectures.resnets import r2plus1d_18
 
 
+# Model parameters
 num_classes = 13
+model_name = "resnet_2_1d"
+
+# Dataloader parameters
+train_on_synthetic_data = True
+nb_of_input_images = 100
+
+use_cuda = False & torch.cuda.is_available() # False: CPU, True: GPU
+
+# Training parameters
+batch_size = 2
+test_batch_size = 1
+num_epochs = 30
+gamma = 0.1
+lr = 0.01
+step_size = 10
+
+# Saving parameters
+results_folder = "results"
+save_model = False
+
+
+
 
 def get_model(model_name):
     if model_name == 'resnet_3d':
-        net = models.video.r3d_18(pretrained=False, num_classes=num_classes)
+        net = r3d_18(pretrained=False, num_classes=num_classes)
     elif model_name == 'resnet_mixed_conv':
-        net = models.video.mc3_18(pretrained=False, num_classes=num_classes)
+        net = mc3_18(pretrained=False, num_classes=num_classes)
     elif model_name == 'resnet_2_1d':
-        net = models.video.r2plus1d_18(pretrained=False, num_classes=num_classes)
-    elif model_name == 'resnet_101':
-        net = resnet101(num_classes=num_classes)
-    else:
+        net = r2plus1d_18(pretrained=False, num_classes=num_classes)
+    else :
         sys.exit('Error: Incorrect model name')
     return net
 
@@ -33,7 +61,6 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
         optimizer.zero_grad()
         output = model(data)
         loss = loss_func(output.float(), target.float())
-        loss = torch.sqrt(2 * loss)
         
         loss.backward()
         optimizer.step()
@@ -42,18 +69,20 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
             print(target)
             print(output, '\n')
             
-        print('[epoch %d, batch_idx %2d] => average batch loss: %.2f' % (epoch+1, batch_idx, loss.item()))
+        print('[epoch %d, batch_idx %2d] => average datapoint and batch loss : %.2f' % (epoch+1, batch_idx, loss.item()))
         
         if batch_idx % 5 == 0:
-            with open(model_name + "_train.txt","a") as f_train:
+            path = os.path.join(results_folder, model_name + "_train.txt") 
+            with open(path, "a") as f_train:
                 f_train.write(str(loss.item()) + "\n")
     print('Finished training')
 
-
+    
+    
+    
 def evaluate(model, device, validation_loader, loss_func, model_name):
     model.eval()
     test_loss = 0
-    correct = 0
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(validation_loader):
             data = data.type(torch.float32).to(device)
@@ -61,7 +90,6 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
             
             output = model(data)
             loss = loss_func(output.float(), target.float())
-            loss = torch.sqrt(2 * loss)
             test_loss += loss # sum up batch loss
             
             if batch_idx == 0:
@@ -72,13 +100,62 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
     test_loss /= len(validation_loader.dataset)
     print('\nValidation set: Average loss: {:.4f}\n'.format(test_loss))
     
-    with open(model_name + "_valid.txt","a") as f_eval:
-        f_eval.write(str(test_loss.item()) + "\n")
+    path = os.path.join(results_folder, model_name + "_valid.txt") 
+    with open(path, "a") as f_valid:
+        f_valid.write(str(test_loss.item()) + "\n")
     
     return test_loss
 
 
+
+def test(model, device, test_loader, loss_func, model_name):
+    model.eval()
+    test_loss = 0
+    correct = 0
+    print('Testing...')
+    with torch.no_grad():
+        for batch_idx, (data, target) in enumerate(test_loader):
+            data = data.type(torch.float32).to(device)
+            target = target.to(device)
+            
+            output = model(data)
+            loss = loss_func(output.float(), target.float())
+            test_loss += loss # sum up batch loss
+            
+            target = target.numpy()[0]
+            output = output.numpy()[0]
+            
+            # Write out test labels and outputs 
+            
+            path = os.path.join(results_folder, model_name + "_test.txt") 
+            with open(path, "a") as f_test:
+                f_test.write(str(loss.item()) + "\n")
+                
+            path = os.path.join(results_folder, model_name + "_test_results.txt") 
+            with open(path,"a") as f_test:
+                f_test.write('[')
+                for i in range(len(target)):
+                    f_test.write(str(target[i]))
+                    if i < len(target) - 1:
+                        f_test.write(', ')
+                    
+                f_test.write('] \n')
+                
+                f_test.write('[')
+                for i in range(len(output)):
+                    f_test.write(str(output[i]))
+                    if i < len(output) - 1:
+                        f_test.write(', ')
+                    
+                f_test.write('] \n')
+                
+    print('Finished test prints')
+    test_loss /= len(test_loader.dataset)
+    
+    return test_loss
+
 def main():
+
     # Training settings
     args = {
         "batch_size" : 2,
@@ -103,16 +180,20 @@ def main():
     
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
-    training_set = Dataset('train')
-    train_loader = data.DataLoader(training_set, batch_size=args['batch_size'], shuffle=True, num_workers=0)
+
     
-    validation_set = Dataset('validation')
-    validation_loader = data.DataLoader(
-        validation_set, batch_size=args['batch_size'], shuffle=True, **kwargs
-    )
+    if train_on_synthetic_data:
+        training_set = SyntheticDataset('train', nb_of_input_images = nb_of_input_images)
+        validation_set = SyntheticDataset('validation', nb_of_input_images = nb_of_input_images)
+        test_set = SyntheticDataset('test', nb_of_input_images = nb_of_input_images)
+    else :
+        training_set = RealDataset('train', nb_of_input_images = nb_of_input_images)
+        validation_set = RealDataset('validation', nb_of_input_images = nb_of_input_images)
+        test_set = RealDataset('test', nb_of_input_images = nb_of_input_images)
     
-#     test_set = Dataset('test', dataset = dataset)
-#     test_loader = data.DataLoader(test_set, batch_size=1, shuffle=False, **kwargs)
+    train_loader = data.DataLoader(training_set, batch_size=batch_size, shuffle=True, num_workers=4)
+    validation_loader = data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=1)
+    test_loader = data.DataLoader(test_set, batch_size=test_batch_size, shuffle=False)
     
     
 #     # get the model using our helper function
@@ -121,29 +202,25 @@ def main():
 #     else:
 #         model = torch.load(load_model)
 
-    model_name = args['model_name']
-    model = get_model(args['model_name'])
-    print('Using model : ', args['model_name'])
+    model = get_model(model_name)
+    print('Using model : ', model_name)
     
-    loss_func = nn.MSELoss(reduction='sum')
+    loss_func = nn.MSELoss(reduction='mean')
     
     # move model to the right device
     model.to(device)
-
     # construct an optimizer
-    optimizer = optim.SGD(model.parameters(), lr=args['lr'])
+    optimizer = optim.SGD(model.parameters(), lr=lr)
     # and a learning rate scheduler
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                    step_size=args['step_size'],
-                                                    gamma=args['gamma'])
+                                                    step_size=step_size,
+                                                    gamma=gamma)
 
-    num_epochs = args['epochs']
-
-    
     
 #     best_val_loss = float("inf")
 #     best_model = copy.deepcopy(model)
 #     best_epoch = 0
+    print('Training for :', num_epochs, 'epochs')
     for epoch in range(num_epochs):
         # train for one epoch, printing every 10 iterations
         train(model, device, train_loader, optimizer, loss_func, epoch, model_name)
@@ -155,6 +232,9 @@ def main():
 #             best_epoch = copy.deepcopy(epoch)
         lr_scheduler.step()
     
-
+    
+    test(model, device, test_loader, loss_func, model_name)
+    
+    
 if __name__ == '__main__':
     main()

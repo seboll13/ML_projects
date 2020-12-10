@@ -34,6 +34,7 @@ sigma = 0.2
 muu = 0.000
 #speedplot parameters for tanh
 shift = -100    #shift the center of the tanh, in pixels
+
 magnitude = 10     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
 compression = 3    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
 #number of iterations
@@ -199,10 +200,15 @@ def main():
     image = draw(canvas)
     resized = draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x))
     
+
     if save_video_canvas:
         images = [image]
     if save_video_output:
         resizeds = [resized]
+        
+    print("Using seed : ", seed)
+    print("Using shift : ", shift)
+    
     print("Calculating all iterations...")
     for i in range(0,iterations-1):
         if i % 100 == 0:
