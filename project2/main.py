@@ -16,10 +16,29 @@ from model.architectures.resnets import mc3_18
 from model.architectures.resnets import r2plus1d_18
 
 
+# Model parameters
 num_classes = 13
-train_on_synthetic_data = True
+model_name = "resnet_2_1d"
 
+# Dataloader parameters
+train_on_synthetic_data = True
+nb_of_input_images = 100
+
+use_cuda = False & torch.cuda.is_available() # False: CPU, True: GPU
+
+# Training parameters
+batch_size = 2
+test_batch_size = 1
+num_epochs = 30
+gamma = 0.1
+lr = 0.01
+step_size = 10
+
+# Saving parameters
 results_folder = "results"
+save_model = False
+
+
 
 
 def get_model(model_name):
@@ -137,42 +156,25 @@ def test(model, device, test_loader, loss_func, model_name):
     return test_loss
 
 def main():
-    # Training settings
-    args = {
-        "batch_size" : 2,
-        "test_batch_size" : 1, 
-        "epochs" : 30, 
-        "gamma" : 0.1, 
-        "log-interval" : 100,
-        "lr" : 0.01, 
-        "model_name" : "resnet_2_1d",
-        "seed" : 1,
-        "step_size" : 10,
-        "save-model" : False
-    }
-    
-    torch.manual_seed(args["seed"])
+    torch.manual_seed(1)
 
-    use_cuda = False #torch.cuda.is_available()
-    
     # CUDA for PyTorch
     device = torch.device("cuda" if use_cuda else "cpu") # GPU if possible
     print('Using device: ', device)
 
     
     if train_on_synthetic_data:
-        training_set = SyntheticDataset('train', nb_of_input_images = 100)
-        validation_set = SyntheticDataset('validation', nb_of_input_images = 100)
-        test_set = SyntheticDataset('test', nb_of_input_images = 100)
+        training_set = SyntheticDataset('train', nb_of_input_images = nb_of_input_images)
+        validation_set = SyntheticDataset('validation', nb_of_input_images = nb_of_input_images)
+        test_set = SyntheticDataset('test', nb_of_input_images = nb_of_input_images)
     else :
-        training_set = RealDataset('train')
-        validation_set = RealDataset('validation')
-        test_set = RealDataset('test')
+        training_set = RealDataset('train', nb_of_input_images = nb_of_input_images)
+        validation_set = RealDataset('validation', nb_of_input_images = nb_of_input_images)
+        test_set = RealDataset('test', nb_of_input_images = nb_of_input_images)
     
-    
-    train_loader = data.DataLoader(training_set, batch_size=args['batch_size'], shuffle=True, num_workers=4)
-    validation_loader = data.DataLoader(validation_set, batch_size=args['batch_size'], shuffle=True, num_workers=1)
-    test_loader = data.DataLoader(test_set, batch_size=args['test_batch_size'], shuffle=False)
+    train_loader = data.DataLoader(training_set, batch_size=batch_size, shuffle=True, num_workers=4)
+    validation_loader = data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=1)
+    test_loader = data.DataLoader(test_set, batch_size=test_batch_size, shuffle=False)
     
     
 #     # get the model using our helper function
@@ -181,22 +183,21 @@ def main():
 #     else:
 #         model = torch.load(load_model)
 
-    model_name = args['model_name']
-    model = get_model(args['model_name'])
-    print('Using model : ', args['model_name'])
+    model = get_model(model_name)
+    print('Using model : ', model_name)
     
     loss_func = nn.MSELoss(reduction='mean')
     
     # move model to the right device
     model.to(device)
     # construct an optimizer
-    optimizer = optim.SGD(model.parameters(), lr=args['lr'])
+    optimizer = optim.SGD(model.parameters(), lr=lr)
     # and a learning rate scheduler
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                    step_size=args['step_size'],
-                                                    gamma=args['gamma'])
+                                                    step_size=step_size,
+                                                    gamma=gamma)
 
-    num_epochs = args['epochs']
+    
     
 #     best_val_loss = float("inf")
 #     best_model = copy.deepcopy(model)
