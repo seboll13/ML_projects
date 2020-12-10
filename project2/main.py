@@ -67,7 +67,7 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
         optimizer.step()
         if batch_idx == 0:
             print('\n One training output example:')
-            print(target.int8())
+            print(target)
             print(output, '\n')
             
         print('[epoch %d, batch_idx %2d] => average datapoint and batch loss : %.2f' % (epoch+1, batch_idx, loss.item()))
@@ -95,7 +95,7 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
             
             if batch_idx == 0:
                 print('\n One validation output example:')
-                print(target.int8())
+                print(target)
                 print(output)
 
     test_loss /= len(validation_loader.dataset)
@@ -136,7 +136,7 @@ def test(model, device, test_loader, loss_func, model_name):
             with open(path,"a") as f_test:
                 f_test.write('[')
                 for i in range(len(target)):
-                    f_test.write(str(target.uint8()[i]))
+                    f_test.write(str(target[i]))
                     if i < len(target) - 1:
                         f_test.write(', ')
                     
@@ -197,7 +197,6 @@ def main():
                                                     step_size=step_size,
                                                     gamma=gamma)
 
-    
     
 #     best_val_loss = float("inf")
 #     best_model = copy.deepcopy(model)
