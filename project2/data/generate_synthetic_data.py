@@ -23,7 +23,7 @@ window = max_x / 2
 final_size_x = 12
 final_size_y = 10
 #amount of gaussian structures to create
-amount = 66*2
+amount = 66*4
 #size of the gaussian structures
 min_size = 200/2
 max_size = min(max_x,max_y)/2
