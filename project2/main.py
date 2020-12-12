@@ -22,10 +22,10 @@ model_names = ['resnet_3d', 'resnet_mixed_conv', 'resnet_2_1d']
 model_name = model_names[2]
 
 # Dataloader parameters
-train_on_synthetic_data = False
-nb_of_input_images = 1000
-num_train_workers = 4
-num_valid_workers = 1
+train_on_synthetic_data = True
+nb_of_input_images = 100
+num_train_workers = 0
+num_valid_workers = 0
 
 
 use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
@@ -197,8 +197,6 @@ def main():
     
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
 
-
-    
     if train_on_synthetic_data:
         print("Loading synthetic data...")
         training_set = SyntheticDataset('train', nb_of_input_images = nb_of_input_images)
