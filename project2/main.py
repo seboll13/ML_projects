@@ -82,8 +82,8 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
             
         print('[epoch %d, batch_idx %2d] => average datapoint and batch loss : %.2f' % (epoch+1, batch_idx, loss.item()))
         
-    test_loss /= len(train_loader.dataset)
-    print('\nTraining set: Average loss: {:.4f}\n'.format(test_loss))
+    train_loss /= len(train_loader.dataset)
+    print('\nTraining set: Average loss: {:.4f}\n'.format(train_loss))
     
     path = os.path.join(results_folder, model_name + "_train_" + str(num_epochs) + "_" + str(lr) + ".txt") 
     with open(path, "a") as f_train:
@@ -142,8 +142,7 @@ def test(model, device, test_loader, loss_func, model_name):
             target = target.numpy()[0]
             output = output.numpy()[0]
             
-            # Write out test labels and outputs 
-            
+            # Write out test loss, labels and outputs 
             path = os.path.join(results_folder, model_name + "_test_" + str(num_epochs) + "_" + str(lr) + ".txt") 
             with open(path, "a") as f_test:
                 f_test.write(str(loss.item()) + "\n")
