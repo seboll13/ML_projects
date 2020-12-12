@@ -18,7 +18,8 @@ from model.architectures.resnets import r2plus1d_18
 
 # Model parameters
 num_classes = 13
-model_name = "resnet_2_1d"
+model_names = ['resnet_3d', 'resnet_mixed_conv', 'resnet_2_1d']
+model_name = model_names[2]
 
 # Dataloader parameters
 train_on_synthetic_data = False
@@ -41,7 +42,8 @@ step_size = 10
 results_folder = "results"
 save_model = False
 save_name = ""
-
+load_model = False
+load_name = ""
 
 
 
@@ -59,15 +61,20 @@ def get_model(model_name):
 
 def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
     model.train()
+    
+    train_loss = 0
     for batch_idx, (data, target) in enumerate(train_loader):
         data = data.type(torch.float32).to(device)
         target = target.to(device)
+        
         optimizer.zero_grad()
         output = model(data)
         loss = loss_func(output.float(), target.float())
-        
+        train_loss += loss
         loss.backward()
+        
         optimizer.step()
+        
         if batch_idx == 0:
             print('\n One training output example:')
             print(target)
@@ -75,10 +82,12 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
             
         print('[epoch %d, batch_idx %2d] => average datapoint and batch loss : %.2f' % (epoch+1, batch_idx, loss.item()))
         
-        if batch_idx % 5 == 0:
-            path = os.path.join(results_folder, model_name + "_train_" + str(num_epochs) + "_" + str(lr) + ".txt") 
-            with open(path, "a") as f_train:
-                f_train.write(str(loss.item()) + "\n")
+    test_loss /= len(train_loader.dataset)
+    print('\nTraining set: Average loss: {:.4f}\n'.format(test_loss))
+    
+    path = os.path.join(results_folder, model_name + "_train_" + str(num_epochs) + "_" + str(lr) + ".txt") 
+    with open(path, "a") as f_train:
+        f_train.write(str(train_loss.item()) + "\n")
     print('Finished training')
 
     
@@ -87,6 +96,7 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
 def evaluate(model, device, validation_loader, loss_func, model_name):
     model.eval()
     test_loss = 0
+    
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(validation_loader):
             data = data.type(torch.float32).to(device)
@@ -115,7 +125,7 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
 def test(model, device, test_loader, loss_func, model_name):
     model.eval()
     test_loss = 0
-    correct = 0
+    
     print('Testing...')
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(test_loader):
