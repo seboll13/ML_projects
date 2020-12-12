@@ -22,10 +22,11 @@ model_names = ['resnet_3d', 'resnet_mixed_conv', 'resnet_2_1d']
 model_name = model_names[2]
 
 # Dataloader parameters
-train_on_synthetic_data = True
-nb_of_input_images = 100
+train_on_synthetic_data = False
+nb_of_input_images = 1000
 num_train_workers = 4
 num_valid_workers = 1
+
 
 use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
 
@@ -67,7 +68,6 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
         target = target.to(device)
         
         optimizer.zero_grad()
-        
         output = model(data)
         loss = loss_func(output.float(), target.float())
         train_loss += loss
@@ -173,11 +173,30 @@ def test(model, device, test_loader, loss_func, model_name):
 
 
 def main():
-    torch.manual_seed(1)
+
+    # Training settings
+    args = {
+        "batch_size" : 2,
+        "test_batch_size" : 1, 
+        "epochs" : 20, 
+        "gamma" : 0.07, 
+        "log-interval" : 100,
+        "lr" : 0.01, 
+        "model_name" : "resnet_2_1d",
+        "seed" : 1,
+        "step_size" : 10,
+        "save-model" : False
+    }
+    
+    use_cuda = torch.cuda.is_available()
+    #use_cuda = False
+    torch.manual_seed(args["seed"])
 
     # CUDA for PyTorch
     device = torch.device("cuda" if use_cuda else "cpu") # GPU if possible
-    print('Using device: ', device)
+    
+    kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
+
 
     
     if train_on_synthetic_data:

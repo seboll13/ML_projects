@@ -10,6 +10,8 @@ import sys
 #Settings 
 #Save full size video (can be a lot of data)
 save_video_canvas = False
+#Save video of output
+save_video_output = False
 #Seed for blob size and position
 seed = 0
 np.random.seed(seed)
@@ -21,21 +23,22 @@ window = max_x / 2
 final_size_x = 12
 final_size_y = 10
 #amount of gaussian structures to create
-amount = 66
+amount = 66*4
 #size of the gaussian structures
-min_size = 200
-max_size = min(max_x,max_y)
+min_size = 200/2
+max_size = min(max_x,max_y)/2
 #how many negative gaussian array, as a ratio of total arrays created
-negative_ratio = 0.5
+negative_ratio = 0.3    #between 0 and 1
 #parameters for gaussian structures
 sigma = 0.2
 muu = 0.000
+intensity = 0.5 #dims (<1) or augment (>1) the gaussians structures
 #speedplot parameters for tanh
-shift = -40    #shift the center of the tanh, in pixels
-magnitude = 10     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
+shift = 0    #shift the center of the tanh, in pixels
+magnitude = 7     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
 compression = 3    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
-#number of iterations
-iterations = 200
+#number of iterations, or frames
+iterations = 500
 
 settings = (("seed",seed),("max_x",max_x),("max_y",max_y),("window",window),("final_size_x",final_size_x),("final_size_y",final_size_y),
 ("amount",amount),("min_size",min_size),("max_size",max_size),("negative_ratio",negative_ratio),("sigma",sigma),("muu",muu),
@@ -91,7 +94,7 @@ def create_gaussian_array(size):
     dst = np.sqrt(x*x+y*y) 
 
     # Calculating Gaussian array 
-    gauss = np.exp(-( (dst-muu)**2 / ( 2.0 * sigma**2 ) ) ) 
+    gauss = intensity * np.exp(-( (dst-muu)**2 / ( 2.0 * sigma**2 ) ) ) 
     return gauss
 
 def create_structures(max_x, max_y, amount):
@@ -100,7 +103,7 @@ def create_structures(max_x, max_y, amount):
         size = np.random.randint(min_size,max_size)
         struc = create_gaussian_array(size)
         
-        if s > amount*negative_ratio:
+        if s > amount*(1-negative_ratio):
             struc = struc*-1
         
         x = np.random.randint(0,max_x)
@@ -163,7 +166,17 @@ def save_video(img_array, name, size_x, size_y):
     cv2.destroyAllWindows()
     video.release()
     
-def save_to_folder(images,resized):
+def save_to_folder(array,path,name):
+    if name == "resized_window.avi":
+        save_video(array,os.path.join(path , name),max_x,max_y)
+    if name == "resized_window.avi":
+        save_video(array,os.path.join(path , name),final_size_x,final_size_y)
+    
+
+def main():
+    print("Creating gaussian structures...")
+    structs = create_structures(max_x, max_y, amount)
+    
     root = "data"
     if not os.path.exists(root):
         os.mkdir(root)
@@ -182,32 +195,37 @@ def save_to_folder(images,resized):
         line = ' '.join(str(x) for x in t)
         f.write(line + '\n')
     f.close()
-    if save_video_canvas:
-        save_video(images,os.path.join(path , "full_canvas.avi"),max_x,max_y)
-    save_video(resized,os.path.join(path , "resized_window.avi"),final_size_x,final_size_y)
-    for i in range(0,len(resized)):
-        resized[i].save(os.path.join(path, "frame_" + str(i) + ".png"))
-
-def main():
-    print("Creating gaussian structures...")
-    structs = create_structures(max_x, max_y, amount)
-    canvas = draw_structs(structs,max_x,max_y)
     
+    canvas = draw_structs(structs,max_x,max_y)
+    image = draw(canvas)
+    resized = draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x))
+    
+
+    if save_video_canvas:
+        images = [image]
+    if save_video_output:
+        resizeds = [resized]
+        
     print("Using seed : ", seed)
     print("Using shift : ", shift)
     
-    arrays = [canvas]
-    images = [draw(canvas)]
-    resized = [draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x))]
     print("Calculating all iterations...")
-    for i in range(0,iterations-1):
+    for i in range(0,iterations):
+        if i % 100 == 0:
+            print("Iteration: " + str(i))
+        resized.save(os.path.join(path, "frame_" + str(i) + ".png"))
         structs = update_structs(structs, 1, max_x, max_y)
         canvas = draw_structs(structs,max_x,max_y)
-        arrays.append(canvas)
-        images.append(draw(canvas))
-        resized.append(draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x)))
-    print("Saving to folder...")
-    save_to_folder(images, resized)
+        resized = draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x))
+        if save_video_canvas:
+            images.append(draw(canvas))
+        if save_video_output:
+            resizeds.append(resized)
+    if save_video_canvas:
+        save_to_folder(images,path,"full_canvas.avi")
+    if save_video_output:
+        save_to_folder(resizeds,path,"resized_window.avi")
+    
     
 if __name__ == '__main__':
     print("Initialization...")
