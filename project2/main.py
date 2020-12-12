@@ -1,6 +1,7 @@
 import sys
 import matplotlib.pyplot as plt
 import os.path
+import copy
 
 import torch
 import torch.nn as nn
@@ -11,9 +12,9 @@ from torch.utils import data
 from data.dataLoader_synthetic_dataset import Dataset as SyntheticDataset
 from data.dataLoader_real_dataset import Dataset as RealDataset
 
-from model.architectures.resnets import r3d_18
-from model.architectures.resnets import mc3_18
-from model.architectures.resnets import r2plus1d_18
+from architectures.resnets import r3d_18
+from architectures.resnets import mc3_18
+from architectures.resnets import r2plus1d_18
 
 
 # Model parameters
@@ -23,7 +24,7 @@ model_name = model_names[2]
 
 # Dataloader parameters
 train_on_synthetic_data = True
-nb_of_input_images = 200
+nb_of_input_images = 100
 num_train_workers = 0
 num_valid_workers = 0
 
@@ -34,15 +35,16 @@ use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
 batch_size = 2
 test_batch_size = 1
 num_epochs = 30
-gamma = 0.05
-lr = 0.005
+gamma = 0.5
+lr = 0.1
 step_size = 10
 
 # Saving parameters
 results_folder = "results"
 trained_on = 's' if train_on_synthetic_data else 'r'
-save_model = False
-save_name = ""
+path_parameters = str(num_epochs) + "_" + trained_on + str(nb_of_input_images) + "_" + str(lr) + "_" + str(gamma)
+save_model = True
+save_name = "models/" + model_name + path_parameters + ".pth"
 load_model = False
 load_name = ""
 
@@ -86,7 +88,7 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
     train_loss /= len(train_loader.dataset)
     print('\nTraining set: Average loss: {:.4f}\n'.format(train_loss))
     
-    path = os.path.join(results_folder, model_name + "_train_" + str(num_epochs) + "_" + trained_on + str(nb_of_input_images) + "_" + str(lr) + ".txt") 
+    path = os.path.join(results_folder, model_name + "_train_" + path_parameters + ".txt") 
     with open(path, "a") as f_train:
         f_train.write(str(train_loss.item()) + "\n")
     print('Finished training')
@@ -115,7 +117,7 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
     test_loss /= len(validation_loader.dataset)
     print('\nValidation set: Average loss: {:.4f}\n'.format(test_loss))
     
-    path = os.path.join(results_folder, model_name + "_valid_" + str(num_epochs) + "_" +  trained_on +str(nb_of_input_images) + "_" + str(lr) + ".txt") 
+    path = os.path.join(results_folder, model_name + "_valid_" + path_parameters + ".txt") 
     with open(path, "a") as f_valid:
         f_valid.write(str(test_loss.item()) + "\n")
     
@@ -144,11 +146,11 @@ def test(model, device, test_loader, loss_func, model_name):
             output = output.numpy()[0]
             
             # Write out test loss, labels and outputs 
-            path = os.path.join(results_folder, model_name + "_test_" + str(num_epochs) + "_" +  trained_on +str(nb_of_input_images) + "_" + str(lr) + ".txt") 
+            path = os.path.join(results_folder, model_name + "_test_" + path_parameters + ".txt") 
             with open(path, "a") as f_test:
                 f_test.write(str(loss.item()) + "\n")
                 
-            path = os.path.join(results_folder, model_name + "_test_results_" + str(num_epochs) + "_" +  trained_on +str(nb_of_input_images) + "_" + str(lr) + ".txt") 
+            path = os.path.join(results_folder, model_name + "_test_results_" + path_parameters + ".txt") 
             with open(path,"a") as f_test:
                 f_test.write('[')
                 for i in range(len(target)):
@@ -223,8 +225,8 @@ def main():
 #         model = torch.load(load_model)
 
     model = get_model(model_name)
-    print('Using model : ', model_name)
-    
+    print('Using model :', model_name)
+    print('Saving model in models/ :', save_model)
     loss_func = nn.MSELoss(reduction='mean')
     
     # move model to the right device
@@ -237,18 +239,18 @@ def main():
                                                     gamma=gamma)
 
     
-#     best_val_loss = float("inf")
-#     best_model = copy.deepcopy(model)
-#     best_epoch = 0
+    best_val_loss = float("inf")
+    best_model = copy.deepcopy(model)
+    
     print('Training for :', num_epochs, 'epochs')
     for epoch in range(num_epochs):
         train(model, device, train_loader, optimizer, loss_func, epoch, model_name)
         average_loss = evaluate(model, device, validation_loader, loss_func, model_name)
-#         if average_loss < best_val_loss:
-#             best_val_loss = average_loss
-#             torch.save(model,save_name)
-#             best_model = copy.deepcopy(model)
-#             best_epoch = copy.deepcopy(epoch)
+        if save_model and average_loss < best_val_loss:
+            print('IMPROVE')
+            best_val_loss = average_loss
+            torch.save(model,save_name)
+            best_model = copy.deepcopy(model)
         lr_scheduler.step()
     
     
