@@ -25,8 +25,8 @@ model_name = model_names[2]
 # Dataloader parameters
 train_on_synthetic_data = True
 nb_of_input_images = 100
-num_train_workers = 0
-num_valid_workers = 0
+num_train_workers = 4
+num_valid_workers = 1
 
 
 use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
@@ -35,8 +35,8 @@ use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
 batch_size = 2
 test_batch_size = 1
 num_epochs = 30
-gamma = 0.5
-lr = 0.1
+gamma = 0.1
+lr = 0.01
 step_size = 10
 
 # Saving parameters
