@@ -1,6 +1,7 @@
 import sys
 import matplotlib.pyplot as plt
 import os.path
+import copy
 
 import torch
 import torch.nn as nn
@@ -11,9 +12,9 @@ from torch.utils import data
 from data.dataLoader_synthetic_dataset import Dataset as SyntheticDataset
 from data.dataLoader_real_dataset import Dataset as RealDataset
 
-from model.architectures.resnets import r3d_18
-from model.architectures.resnets import mc3_18
-from model.architectures.resnets import r2plus1d_18
+from architectures.resnets import r3d_18
+from architectures.resnets import mc3_18
+from architectures.resnets import r2plus1d_18
 
 
 # Model parameters
@@ -42,8 +43,8 @@ step_size = 10
 results_folder = "results"
 trained_on = 's' if train_on_synthetic_data else 'r'
 path_parameters = str(num_epochs) + "_" + trained_on + str(nb_of_input_images) + "_" + str(lr) + "_" + str(gamma)
-save_model = False
-save_name = ""
+save_model = True
+save_name = "models/" + model_name + path_parameters + ".pth"
 load_model = False
 load_name = ""
 
@@ -224,8 +225,8 @@ def main():
 #         model = torch.load(load_model)
 
     model = get_model(model_name)
-    print('Using model : ', model_name)
-    
+    print('Using model :', model_name)
+    print('Saving model in models/ :', save_model)
     loss_func = nn.MSELoss(reduction='mean')
     
     # move model to the right device
@@ -238,18 +239,18 @@ def main():
                                                     gamma=gamma)
 
     
-#     best_val_loss = float("inf")
-#     best_model = copy.deepcopy(model)
-#     best_epoch = 0
+    best_val_loss = float("inf")
+    best_model = copy.deepcopy(model)
+    
     print('Training for :', num_epochs, 'epochs')
     for epoch in range(num_epochs):
         train(model, device, train_loader, optimizer, loss_func, epoch, model_name)
         average_loss = evaluate(model, device, validation_loader, loss_func, model_name)
-#         if average_loss < best_val_loss:
-#             best_val_loss = average_loss
-#             torch.save(model,save_name)
-#             best_model = copy.deepcopy(model)
-#             best_epoch = copy.deepcopy(epoch)
+        if save_model and average_loss < best_val_loss:
+            print('IMPROVE')
+            best_val_loss = average_loss
+            torch.save(model,save_name)
+            best_model = copy.deepcopy(model)
         lr_scheduler.step()
     
     
