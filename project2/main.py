@@ -23,7 +23,7 @@ model_name = model_names[2]
 
 # Dataloader parameters
 train_on_synthetic_data = True
-nb_of_input_images = 200
+nb_of_input_images = 100
 num_train_workers = 4
 num_valid_workers = 1
 
@@ -41,6 +41,7 @@ step_size = 10
 # Saving parameters
 results_folder = "results"
 trained_on = 's' if train_on_synthetic_data else 'r'
+path_parameters = str(num_epochs) + "_" + trained_on + str(nb_of_input_images) + "_" + str(lr) + "_" + str(gamma)
 save_model = False
 save_name = ""
 load_model = False
@@ -86,7 +87,7 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
     train_loss /= len(train_loader.dataset)
     print('\nTraining set: Average loss: {:.4f}\n'.format(train_loss))
     
-    path = os.path.join(results_folder, model_name + "_train_" + str(num_epochs) + "_" + trained_on + str(nb_of_input_images) + "_" + str(lr) + ".txt") 
+    path = os.path.join(results_folder, model_name + "_train_" + path_parameters + ".txt") 
     with open(path, "a") as f_train:
         f_train.write(str(train_loss.item()) + "\n")
     print('Finished training')
@@ -115,7 +116,7 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
     test_loss /= len(validation_loader.dataset)
     print('\nValidation set: Average loss: {:.4f}\n'.format(test_loss))
     
-    path = os.path.join(results_folder, model_name + "_valid_" + str(num_epochs) + "_" +  trained_on +str(nb_of_input_images) + "_" + str(lr) + ".txt") 
+    path = os.path.join(results_folder, model_name + "_valid_" + path_parameters + ".txt") 
     with open(path, "a") as f_valid:
         f_valid.write(str(test_loss.item()) + "\n")
     
@@ -144,11 +145,11 @@ def test(model, device, test_loader, loss_func, model_name):
             output = output.numpy()[0]
             
             # Write out test loss, labels and outputs 
-            path = os.path.join(results_folder, model_name + "_test_" + str(num_epochs) + "_" +  trained_on +str(nb_of_input_images) + "_" + str(lr) + ".txt") 
+            path = os.path.join(results_folder, model_name + "_test_" + path_parameters + ".txt") 
             with open(path, "a") as f_test:
                 f_test.write(str(loss.item()) + "\n")
                 
-            path = os.path.join(results_folder, model_name + "_test_results_" + str(num_epochs) + "_" +  trained_on +str(nb_of_input_images) + "_" + str(lr) + ".txt") 
+            path = os.path.join(results_folder, model_name + "_test_results_" + path_parameters + ".txt") 
             with open(path,"a") as f_test:
                 f_test.write('[')
                 for i in range(len(target)):
