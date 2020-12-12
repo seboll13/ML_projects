@@ -22,8 +22,8 @@ model_names = ['resnet_3d', 'resnet_mixed_conv', 'resnet_2_1d']
 model_name = model_names[2]
 
 # Dataloader parameters
-train_on_synthetic_data = False
-nb_of_input_images = 1000
+train_on_synthetic_data = True
+nb_of_input_images = 200
 num_train_workers = 4
 num_valid_workers = 1
 
@@ -40,6 +40,7 @@ step_size = 10
 
 # Saving parameters
 results_folder = "results"
+trained_on = 's' if train_on_synthetic_data else 'r'
 save_model = False
 save_name = ""
 load_model = False
@@ -85,7 +86,7 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name):
     train_loss /= len(train_loader.dataset)
     print('\nTraining set: Average loss: {:.4f}\n'.format(train_loss))
     
-    path = os.path.join(results_folder, model_name + "_train_" + str(num_epochs) + "_" + str(lr) + ".txt") 
+    path = os.path.join(results_folder, model_name + "_train_" + str(num_epochs) + "_" + trained_on + str(nb_of_input_images) + "_" + str(lr) + ".txt") 
     with open(path, "a") as f_train:
         f_train.write(str(train_loss.item()) + "\n")
     print('Finished training')
@@ -114,7 +115,7 @@ def evaluate(model, device, validation_loader, loss_func, model_name):
     test_loss /= len(validation_loader.dataset)
     print('\nValidation set: Average loss: {:.4f}\n'.format(test_loss))
     
-    path = os.path.join(results_folder, model_name + "_valid_" + str(num_epochs) + "_" + str(lr) + ".txt") 
+    path = os.path.join(results_folder, model_name + "_valid_" + str(num_epochs) + "_" +  trained_on +str(nb_of_input_images) + "_" + str(lr) + ".txt") 
     with open(path, "a") as f_valid:
         f_valid.write(str(test_loss.item()) + "\n")
     
@@ -143,11 +144,11 @@ def test(model, device, test_loader, loss_func, model_name):
             output = output.numpy()[0]
             
             # Write out test loss, labels and outputs 
-            path = os.path.join(results_folder, model_name + "_test_" + str(num_epochs) + "_" + str(lr) + ".txt") 
+            path = os.path.join(results_folder, model_name + "_test_" + str(num_epochs) + "_" +  trained_on +str(nb_of_input_images) + "_" + str(lr) + ".txt") 
             with open(path, "a") as f_test:
                 f_test.write(str(loss.item()) + "\n")
                 
-            path = os.path.join(results_folder, model_name + "_test_results_" + str(num_epochs) + "_" + str(lr) + ".txt") 
+            path = os.path.join(results_folder, model_name + "_test_results_" + str(num_epochs) + "_" +  trained_on +str(nb_of_input_images) + "_" + str(lr) + ".txt") 
             with open(path,"a") as f_test:
                 f_test.write('[')
                 for i in range(len(target)):
@@ -194,18 +195,18 @@ def main():
 
     # CUDA for PyTorch
     device = torch.device("cuda" if use_cuda else "cpu") # GPU if possible
-    
-    kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
-
+    print('Using device:', device)
 
     
     if train_on_synthetic_data:
         print("Loading synthetic data...")
+        print('Number of input images:', nb_of_input_images)
         training_set = SyntheticDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = SyntheticDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = SyntheticDataset('test', nb_of_input_images = nb_of_input_images)
     else :
         print("Loading real data...")
+        print('Number of input images:', nb_of_input_images)
         training_set = RealDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = RealDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = RealDataset('test', nb_of_input_images = nb_of_input_images)
