@@ -97,7 +97,24 @@ As mentionned earlier, the real data is the one in the pickle files that we were
 \end{enumerate}
 
 \section{Results}
-% PUT PLOTS HERE
+\subsection{Parameters learnt with synthetic data}
+We describe in this part the tests we have done in order to find the best parameters to use for the real data. Parameters we have tried to find are typically the step size $\gamma$ and the learning rate. We have based ourselves on the training and validation losses.\par 
+We have for the purpose, created a python script that goes through all different parameters to test and generates a plot according to the matter. With a step size varying from 0.05 to 0.5 and a learning rate varying from 0.005 to 0.1, we get plots that ressemble each other but generally have two main different lookings. 
+\begin{enumerate}
+  \item The first one has a very steep exponential decrease for the first 10 to 15 epochs and then decreases quite slowly but has an average loss that is quite small.
+  \item The other, starts with a smaller training loss and a nearly zero validation loss. However, the validations loss pattern is quite different: it increases for a few epochs and then decreases almost linearly but is more significant than the preceding one after the 30 epochs. It can also start very high and diminish extremly fast during the first few epochs, before increasing a little again.
+\end{enumerate}
+Note that the first plot above is obtained with a learning rate of 0.005 and $\gamma=0.05$ whereas the second one has a learning rate of 0.05 and $\gamma=0.5$.
+\begin{figure}
+  \centering
+  \includegraphics[scale=.4]{images/bestplot_1.png}
+  \caption{Best parameters for first kind of plot}
+\end{figure}
+\begin{figure}
+  \centering
+  \includegraphics[scale=.4]{images/bestplot_2.png}
+  \caption{Best parameters for second kind of plot}
+\end{figure}
 
 \section{Conclusion}
 
