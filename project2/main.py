@@ -24,7 +24,7 @@ model_name = model_names[2]
 
 # Dataloader parameters
 train_on_synthetic_data = True
-nb_of_input_images = 100
+nb_of_input_images = 1000
 num_train_workers = 4
 num_valid_workers = 1
 
