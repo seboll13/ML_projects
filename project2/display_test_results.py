@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 import os.path
 
-
-path = os.path.join("results","resnet_2_1d_test_results_30_0.01.txt") 
+folder = 'models'
+model = 'resnet_2_1d_0'
+path = os.path.join(folder,model,"test_results.txt") 
 
 lines = []
 labels = []
@@ -25,4 +26,6 @@ if __name__ == '__main__':
         plt.ylabel('Velocity')
         plt.xlabel('Column')
         plt.legend(handles=[line_t, line_o])
-        plt.show()
+        #plt.show()
+        plt.savefig(os.path.join(folder,model,'plot_test_results_' + str(i) + '.png'))
+    

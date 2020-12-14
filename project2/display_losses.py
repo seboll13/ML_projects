@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import time
 import os
 
-folder = 'results/'
-model = 'resnet_2_1d_'
-sets = ['train_', 'valid_']
+folder = 'models'
+model = 'resnet_2_1d_0'
+sets = ['train', 'valid']
 epochs = 30
 nb_input_images = 100
 lrs = [0.005, 0.01, 0.05, 0.1]
@@ -14,8 +14,7 @@ if __name__ == '__main__':
         for gamma in gammas:
             trains, valids = [], []
             for i in range(len(sets)):
-                path = folder + model + sets[i] + str(epochs) + '_s' + str(nb_input_images) + '_'\
-                + str(lr) + '_' + str(gamma) + '.txt'
+                path = os.path.join(folder,model,"losses_" + sets[i] + ".txt")
                 with open(path, 'r') as f:
                     for line in f:
                         if line == 'nan':
@@ -33,9 +32,6 @@ if __name__ == '__main__':
             plt.legend()
             plt.ylim(0, 10)
 
-            base_dir = folder + 'plots'
-            if not os.path.exists(base_dir):
-                os.makedirs(base_dir)
-            os.chdir(base_dir)
-            plt.savefig('plot_' + params + '.png')
-            os.chdir('../..')
+            
+            plt.savefig(os.path.join(folder,model,'plot_losses_train_valid.png'))
+            
