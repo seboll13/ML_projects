@@ -7,7 +7,7 @@ import math
 import random
 
 class Dataset(data.Dataset):
-    def __init__(self, usage, nb_of_input_images = 100, flip = False):
+    def __init__(self, usage, nb_of_input_images = 1000, flip = False):
         ratio_train_test = 0.8
         ratio_train_validation = 0.8
         random.seed(1)

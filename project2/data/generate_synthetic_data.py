@@ -38,7 +38,7 @@ shift = 0    #shift the center of the tanh, in pixels
 magnitude = 7     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
 compression = 3    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
 #number of iterations, or frames
-iterations = 500
+iterations = 1000
 
 settings = (("seed",seed),("max_x",max_x),("max_y",max_y),("window",window),("final_size_x",final_size_x),("final_size_y",final_size_y),
 ("amount",amount),("min_size",min_size),("max_size",max_size),("negative_ratio",negative_ratio),("sigma",sigma),("muu",muu),
