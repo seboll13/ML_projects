@@ -5,15 +5,13 @@ import cv2
 import matplotlib.pyplot as plt
 import os
 import sys
-
-
 #Settings 
 #Save full size video (can be a lot of data)
 save_video_canvas = False
 #Save video of output
 save_video_output = False
 #Seed for blob size and position
-seed = 0
+seed = np.random.randint(100000)
 np.random.seed(seed)
 #size of canvas
 max_x = 480    
@@ -34,11 +32,11 @@ sigma = 0.2
 muu = 0.000
 intensity = 0.5 #dims (<1) or augment (>1) the gaussians structures
 #speedplot parameters for tanh
-shift = 0    #shift the center of the tanh, in pixels
+shift = np.random.randint(-50,50)    #shift the center of the tanh, in pixels
 magnitude = 7     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
-compression = 3    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
+compression = np.random.randint(3,6)    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
 #number of iterations, or frames
-iterations = 500
+iterations = 5000
 
 settings = (("seed",seed),("max_x",max_x),("max_y",max_y),("window",window),("final_size_x",final_size_x),("final_size_y",final_size_y),
 ("amount",amount),("min_size",min_size),("max_size",max_size),("negative_ratio",negative_ratio),("sigma",sigma),("muu",muu),
@@ -120,6 +118,7 @@ def update_structs(structs, time, max_x, max_y):
         new_pos[1] = new_pos[1] % max_y
         new_structs[p][0] = new_pos
     return new_structs
+    
 
 def draw_structs(structs,max_x,max_y):
     canvas = np.zeros((max_y,max_x))
@@ -171,7 +170,6 @@ def save_to_folder(array,path,name):
         save_video(array,os.path.join(path , name),max_x,max_y)
     if name == "resized_window.avi":
         save_video(array,os.path.join(path , name),final_size_x,final_size_y)
-    
 
 def main():
     print("Creating gaussian structures...")

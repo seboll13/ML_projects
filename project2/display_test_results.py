@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import os.path
 
 folder = 'models'
-model = 'resnet_2_1d_0'
+model = 'resnet_2_1d_3'
 path = os.path.join(folder,model,"test_results.txt") 
 
 lines = []

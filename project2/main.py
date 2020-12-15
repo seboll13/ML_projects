@@ -20,11 +20,11 @@ from architectures.resnets import r2plus1d_18
 # Model parameters
 num_classes = 13
 model_names = ['resnet_3d', 'resnet_mixed_conv', 'resnet_2_1d']
-model_name = model_names[2]
+model_name = model_names[0]
 
 # Dataloader parameters
 train_on_synthetic_data = False
-nb_of_input_images = 1000
+nb_of_input_images = 5000
 num_train_workers = 4
 num_valid_workers = 1
 
@@ -35,8 +35,8 @@ use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
 batch_size = 2
 test_batch_size = 1
 num_epochs = 30
-gamma = 0.5
-lr = 0.05
+gamma = 0.1
+lr = 0.01
 step_size = 10
 
 settings = (("model_name",model_name),("train_on_synthetic_data",train_on_synthetic_data),("nb_of_input_images",nb_of_input_images),
@@ -232,6 +232,7 @@ def main():
         training_set = SyntheticDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = SyntheticDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = SyntheticDataset('test', nb_of_input_images = nb_of_input_images)
+        
     else :
         print("Loading real data...")
         print('Number of input images:', nb_of_input_images)
@@ -239,8 +240,12 @@ def main():
         validation_set = RealDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = RealDataset('test', nb_of_input_images = nb_of_input_images)
     
-    train_loader = data.DataLoader(training_set, batch_size=batch_size, shuffle=True, num_workers=num_train_workers)
-    validation_loader = data.DataLoader(validation_set, batch_size=batch_size, shuffle=True, num_workers=num_valid_workers)
+    print("Amount of training images: " + str(training_set.__len__()))
+    print("Amount of validation images: " + str(validation_set.__len__()))
+    print("Amount of testing images: " + str(test_set.__len__()))
+    
+    train_loader = data.DataLoader(training_set, batch_size=batch_size, shuffle=False, num_workers=num_train_workers)
+    validation_loader = data.DataLoader(validation_set, batch_size=batch_size, shuffle=False, num_workers=num_valid_workers)
     test_loader = data.DataLoader(test_set, batch_size=test_batch_size, shuffle=False)
     
     
@@ -287,7 +292,7 @@ def main():
     
     
     test(best_model, device, test_loader, loss_func, model_name,path)
-    exit()
+    sys.exit()
     
     
 if __name__ == '__main__':
