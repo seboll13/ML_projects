@@ -1,9 +1,10 @@
+
 import matplotlib.pyplot as plt
 import os.path
 import numpy as np
 
 folder = 'models'
-model = 'resnet_3d_0'
+model = 'resnet_3d_11'
 path = os.path.join(folder,model,"test_results.txt") 
 path_loss = os.path.join(folder,model,"losses_test.txt") 
 lines = []
