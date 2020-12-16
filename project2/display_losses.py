@@ -3,7 +3,7 @@ import time
 import os
 
 folder = 'models'
-model = 'resnet_2_1d_3'
+model = 'resnet_3d_11'
 sets = ['train', 'valid']
 epochs = 30
 nb_input_images = 100
@@ -30,7 +30,7 @@ if __name__ == '__main__':
             plt.plot(trains, label='training_losses')
             plt.plot(valids, label='validation_losses')
             plt.legend()
-            plt.ylim(0, 10)
+            plt.ylim(0, 20)
 
             
             plt.savefig(os.path.join(folder,model,'plot_losses_train_valid.png'))

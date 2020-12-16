@@ -24,7 +24,7 @@ model_name = model_names[0]
 
 # Dataloader parameters
 train_on_synthetic_data = False
-nb_of_input_images = 5000
+nb_of_input_images = 2000
 num_train_workers = 4
 num_valid_workers = 1
 
@@ -32,16 +32,17 @@ num_valid_workers = 1
 use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
 
 # Training parameters
-batch_size = 2
+batch_size = 4
 test_batch_size = 1
 num_epochs = 30
 gamma = 0.1
-lr = 0.01
+lr = 0.005
 step_size = 10
+seed = 1
 
 settings = (("model_name",model_name),("train_on_synthetic_data",train_on_synthetic_data),("nb_of_input_images",nb_of_input_images),
 ("num_train_workers",num_train_workers),("num_valid_workers",num_valid_workers),("batch_size",batch_size),("test_batch_size",test_batch_size),
-("num_epochs",num_epochs),("gamma",gamma),("lr",lr),("step_size",step_size))
+("num_epochs",num_epochs),("gamma",gamma),("lr",lr),("step_size",step_size),("seed",seed))
 # Saving parameters
 models_folder = "models"
 load_model = False
@@ -92,7 +93,7 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name,p
             
         print('[epoch %d, batch_idx %2d] => average datapoint and batch loss : %.2f' % (epoch+1, batch_idx, loss.item()))
         
-    train_loss /= len(train_loader.dataset)
+    train_loss /= len(train_loader.dataset)/batch_size
     print('\nTraining set: Average loss: {:.4f}\n'.format(train_loss))
     if not load_model:
         txt_path = os.path.join(path, "losses_train.txt") 
@@ -121,7 +122,7 @@ def evaluate(model, device, validation_loader, loss_func, model_name,path):
                 print(target)
                 print(output)
 
-    test_loss /= len(validation_loader.dataset)
+    test_loss /= len(validation_loader.dataset)/batch_size
     print('\nValidation set: Average loss: {:.4f}\n'.format(test_loss))
     
     if not load_model:
@@ -204,22 +205,11 @@ def main():
         path = os.path.join(models_folder,load_folder)
         load_name = os.path.join(models_folder,load_folder,"model.pth")
     # Training settings
-    args = {
-        "batch_size" : 2,
-        "test_batch_size" : 1, 
-        "epochs" : 20, 
-        "gamma" : 0.07, 
-        "log-interval" : 100,
-        "lr" : 0.01, 
-        "model_name" : "resnet_2_1d",
-        "seed" : 1,
-        "step_size" : 10,
-        "save-model" : False
-    }
+    
     
     use_cuda = torch.cuda.is_available()
     #use_cuda = False
-    torch.manual_seed(args["seed"])
+    torch.manual_seed(seed)
 
     # CUDA for PyTorch
     device = torch.device("cuda" if use_cuda else "cpu") # GPU if possible
@@ -275,7 +265,6 @@ def main():
                                                     gamma=gamma)
 
     
-    best_val_loss = float("inf")
     best_model = copy.deepcopy(model)
     
     if not load_model:
@@ -283,15 +272,13 @@ def main():
         for epoch in range(num_epochs):
             train(model, device, train_loader, optimizer, loss_func, epoch, model_name,path)
             average_loss = evaluate(model, device, validation_loader, loss_func, model_name,path)
-            if not load_model and average_loss < best_val_loss:
-                print('IMPROVE')
-                best_val_loss = average_loss
+            if not load_model:
                 torch.save(model,save_name)
                 best_model = copy.deepcopy(model)
             lr_scheduler.step()
     
     
-    test(best_model, device, test_loader, loss_func, model_name,path)
+    print(test(best_model, device, test_loader, loss_func, model_name,path))
     sys.exit()
     
     
