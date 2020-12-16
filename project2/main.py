@@ -100,9 +100,11 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name,p
     train_loss = 0
     
     for batch_idx, (data, target) in enumerate(train_loader):
+        # Move tensors to the right device
         data = data.type(torch.float32).to(device)
         target = target.to(device)
         
+        # Prepare optimizer, train and propagate the loss
         optimizer.zero_grad()
         output = model(data)
         loss = loss_func(output.float(), target.float())
@@ -110,14 +112,12 @@ def train(model, device, train_loader, optimizer, loss_func, epoch, model_name,p
         loss.backward()
         optimizer.step()
         
-        if batch_idx == 0:
-            print('\n One training output example:')
-            print(target)
-            print(output, '\n')      
         print('[epoch %d, batch_idx %2d] => average datapoint and batch loss : %.2f' % (epoch+1, batch_idx, loss.item()))
 
     train_loss /= (len(train_loader.dataset)/ batch_size)
     print('\nTraining set: Average loss: {:.4f}\n'.format(train_loss))
+    
+    # Save training loss in .txt
     if not load_model:
         txt_path = os.path.join(path, "losses_train.txt") 
         with open(txt_path, "a") as f_train:
@@ -143,9 +143,11 @@ def evaluate(model, device, validation_loader, loss_func, model_name, path):
     
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(validation_loader):
+            # Move tensors to the right device
             data = data.type(torch.float32).to(device)
             target = target.to(device)
             
+            # Evaluate
             output = model(data)
             loss = loss_func(output.float(), target.float())
             test_loss += loss # sum up batch loss
