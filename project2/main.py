@@ -23,7 +23,7 @@ model_names = ['resnet_3d', 'resnet_mixed_conv', 'resnet_2_1d']
 model_name = model_names[0]
 
 # Dataloader parameters
-train_on_synthetic_data = True
+train_on_synthetic_data = False
 nb_of_input_images = 2000
 num_train_workers = 4
 num_valid_workers = 1
@@ -33,7 +33,7 @@ num_valid_workers = 1
 use_cuda = True & torch.cuda.is_available()
 
 # Training parameters
-batch_size = 8
+batch_size = 4
 test_batch_size = 1
 num_epochs = 30
 gamma = 0.1
