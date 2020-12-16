@@ -3,7 +3,7 @@ import time
 import os
 
 folder = 'models'
-model = 'resnet_3d_11'
+model = 'resnet_3d_48'
 sets = ['train', 'valid']
 epochs = 30
 nb_input_images = 100

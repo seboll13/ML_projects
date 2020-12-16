@@ -32,11 +32,11 @@ num_valid_workers = 1
 use_cuda = True & torch.cuda.is_available() # False: CPU, True: GPU
 
 # Training parameters
-batch_size = 4
+batch_size = 2
 test_batch_size = 1
 num_epochs = 30
 gamma = 0.1
-lr = 0.005
+lr = 0.02
 step_size = 10
 seed = 1
 
