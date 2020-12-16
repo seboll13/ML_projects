@@ -32,7 +32,6 @@ class Dataset(data.Dataset):
             self.images_by_folder.append(frames.copy())
         
         self.img_sets = []
-        self.speedplots_per_set = []
         for image_set in self.images_by_folder:
             if len(image_set)/self.input_nb < 1:
                 print("Error: not enough frames in folder " + self.folders[self.images_by_folder.index(image_set)] + " for at least one input(" + str(self.input_nb) + ")")

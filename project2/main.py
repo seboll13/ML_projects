@@ -37,7 +37,8 @@ batch_size = 4
 test_batch_size = 1
 num_epochs = 30
 gamma = 0.1
-lr = 0.03
+lr = 0.02
+
 step_size = 10
 seed = 1
 
