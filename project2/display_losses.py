@@ -9,6 +9,7 @@ epochs = 30
 nb_input_images = 100
 lrs = [0.005, 0.01, 0.05, 0.1]
 gammas = [0.05, 0.1, 0.2, 0.5]
+
 if __name__ == '__main__':
     for lr in lrs:
         for gamma in gammas:
@@ -30,8 +31,6 @@ if __name__ == '__main__':
             plt.plot(trains, label='training_losses')
             plt.plot(valids, label='validation_losses')
             plt.legend()
-            plt.ylim(0, 10)
+            plt.ylim(0, 20)
 
-            
             plt.savefig(os.path.join(folder,model,'plot_losses_train_valid.png'))
-            
