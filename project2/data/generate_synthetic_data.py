@@ -13,7 +13,7 @@ save_video_canvas = False
 #Save video of output
 save_video_output = False
 #Seed for blob size and position
-seed = 0
+seed = int(sys.argv[1])
 np.random.seed(seed)
 #size of canvas
 max_x = 480    
@@ -34,11 +34,11 @@ sigma = 0.2
 muu = 0.000
 intensity = 0.5 #dims (<1) or augment (>1) the gaussians structures
 #speedplot parameters for tanh
-shift = 0    #shift the center of the tanh, in pixels
+shift = int(sys.argv[2])    #shift the center of the tanh, in pixels
 magnitude = 7     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
-compression = 3    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
+compression = int(sys.argv[3])    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
 #number of iterations, or frames
-iterations = 1000
+iterations = 5000
 
 settings = (("seed",seed),("max_x",max_x),("max_y",max_y),("window",window),("final_size_x",final_size_x),("final_size_y",final_size_y),
 ("amount",amount),("min_size",min_size),("max_size",max_size),("negative_ratio",negative_ratio),("sigma",sigma),("muu",muu),

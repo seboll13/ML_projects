@@ -1,6 +1,6 @@
 #!/bin/bash
 echo 'Data generation started'
-for i in {1..20}
+for i in {1..30}
 do
     SEED=$(( $RANDOM % 10))
     SHFT=$(( $RANDOM % 100 - 50))
