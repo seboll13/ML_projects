@@ -7,7 +7,7 @@ import math
 import random
 
 class Dataset(data.Dataset):
-    def __init__(self, usage, nb_of_input_images = 1000, flip = False):
+    def __init__(self, usage, nb_of_input_images = 2000, flip = False):
         ratio_train_test = 0.8
         ratio_train_validation = 0.8
         random.seed(1)
@@ -34,8 +34,7 @@ class Dataset(data.Dataset):
         self.img_sets = []
         for image_set in self.images_by_folder:
             if len(image_set)/self.input_nb < 1:
-                print("Error: not enough frames in folder " + self.folders[self.images_by_folder.index(image_set)] 
-                                 + " for at least one input(" + str(self.input_nb) + ")")
+                print("Error: not enough frames in folder " + self.folders[self.images_by_folder.index(image_set)] + " for at least one input(" + str(self.input_nb) + ")")
             else:
                 for s in range(0,math.floor(len(image_set)/self.input_nb)):
                     self.img_sets.append(image_set[s*self.input_nb:(s+1)*self.input_nb])
