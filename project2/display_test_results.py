@@ -1,10 +1,18 @@
 import matplotlib.pyplot as plt
 import os.path
+import sys
 import numpy as np
 
 # parameters
 folder = 'models'
-model = 'resnet_3d_48'
+
+if len(sys.argv) < 2:
+    sys.exit('Please input the folder name containing the test results to be plotted')
+    
+if not os.path.exists(str(sys.argv[1])):
+    sys.exit('This folder does not exist')
+
+model = str(sys.argv[1])
 path = os.path.join(folder,model,"test_results.txt") 
 path_loss = os.path.join(folder,model,"losses_test.txt") 
 lines = []
