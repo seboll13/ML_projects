@@ -1,0 +1,5 @@
+Required Packages:
+
+Pytorch: https://pytorch.org/ 
+         Pytorch Build Stable (1.7.1)
+	 Cuda 10.2
