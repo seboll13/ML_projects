@@ -5,7 +5,7 @@ import os
 
 # parameters
 folder = 'models'
-model = 'resnet_3d_' + str(sys.argv[1])
+model = sys.argv[1]
 sets = ['train', 'valid']
 
 nb_input_images, batch_size, nb_epochs, gamma, lr = 0,0,0,'',''
