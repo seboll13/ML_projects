@@ -11,13 +11,14 @@ from torch.utils import data
 
 from data.dataLoader_synthetic_dataset import Dataset as SyntheticDataset
 from data.dataLoader_real_dataset import Dataset as RealDataset
+from data.dataLoader_both_dataset import Dataset as MixedDataset
 
 from architectures.resnets import r3d_18
 from architectures.resnets import mc3_18
 from architectures.resnets import r2plus1d_18
 
 
-########## Model parameters #########################
+########## Model initialisation parameters ##########
 # number of values the model has to predict.
 num_classes = 13
 
@@ -28,9 +29,8 @@ model_name = model_names[0]
 
 
 ########## Dataloader parameters ####################
-
-train_on_synthetic_data = False
-
+# Selects the dataset to be used (synthetic, real or mixed)
+select_datalaoder = "synthetic"
 # number of frames to be considered as a single datapoint. We have chosen 2000 images.
 nb_of_input_images = 2000
 
@@ -44,6 +44,7 @@ num_valid_workers = 1
 # train the model on GPU if True (and if cuda is available on the hardware), otherwise train on CPU.
 use_cuda = True & torch.cuda.is_available()
 
+
 ########## Training parameters ######################
 # number of inputs to be trained simultaneously. 
 batch_size = 8
@@ -51,7 +52,7 @@ batch_size = 8
 test_batch_size = 1
 
 # total number of training epochs.
-num_epochs = 30
+num_epochs = 1
 # learning rate
 lr = 0.02
 # ratio at which the learning rate decreases
@@ -61,10 +62,11 @@ step_size = 10
 # seed for random functions in PyTorch
 seed = 1
 
+
 ########## Saving parameters ######################
 # format to save all parameters in settings.txt for future analysis
 settings = (("model_name",model_name),
-            ("train_on_synthetic_data",train_on_synthetic_data),
+            ("select_datalaoder",select_datalaoder),
             ("nb_of_input_images",nb_of_input_images),
             ("num_train_workers",num_train_workers),
             ("num_valid_workers",num_valid_workers),
@@ -80,7 +82,7 @@ models_folder = "models"
 # loads a pretrained model (stored in models/) if True, otherwise generates and trains a new model
 load_model = False
 # folder to load the model from
-load_folder = ""
+load_folder = "resnet_2_1d_0"
 
 
 def get_model(model_name):
@@ -244,7 +246,7 @@ def test(model, device, test_loader, loss_func, model_name, path):
                     
                 f_test.write('] \n')
                 
-    print('Finished test prints')
+    print('Saved test results')
     test_loss /= len(test_loader.dataset)
     
     return test_loss
@@ -282,19 +284,27 @@ def main():
     print('Using device:', device)
 
     # Loads the synthetic dataset or real dataset
-    if train_on_synthetic_data:
+    if select_datalaoder == "synthetic":
         print("Loading synthetic data...")
         print('Number of input images:', nb_of_input_images)
         training_set = SyntheticDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = SyntheticDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = SyntheticDataset('test', nb_of_input_images = nb_of_input_images)
-    else:
+    elif select_datalaoder == "real":
         print("Loading real data...")
         print('Number of input images:', nb_of_input_images)
         training_set = RealDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = RealDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = RealDataset('test', nb_of_input_images = nb_of_input_images)
-    
+    elif select_datalaoder == "mixed":
+        print("Loading mixed data...")
+        print('Number of input images:', nb_of_input_images)
+        training_set = MixedDataset('train', nb_of_input_images = nb_of_input_images)
+        validation_set = MixedDataset('validation', nb_of_input_images = nb_of_input_images)
+        test_set = MixedDataset('test', nb_of_input_images = nb_of_input_images)
+    else:
+        raise ValueError("Wrong dataloader; Only synthetic, real or mixed")
+        
     print("Amount of training images: " + str(training_set.__len__()))
     print("Amount of validation images: " + str(validation_set.__len__()))
     print("Amount of testing images: " + str(test_set.__len__()))
@@ -305,6 +315,7 @@ def main():
     
     # Loads a pretrained model to be tested, or generates a new model to be trained
     if load_model:
+        print('Loading model from folder:', load_folder)
         model = torch.load(load_name)
     else:
         model = get_model(model_name)
@@ -321,7 +332,6 @@ def main():
     # and a learning rate scheduler
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,step_size=step_size,gamma=gamma)
 
-    best_model = copy.deepcopy(model)
     
     # Training loop
     if not load_model:
@@ -332,9 +342,9 @@ def main():
             lr_scheduler.step()
     
         torch.save(model,save_name)
-    
-    best_model = copy.deepcopy(model)
-    print(test(best_model, device, test_loader, loss_func, model_name,path))
+    # Test
+    else :
+        print(test(model, device, test_loader, loss_func, model_name,path))
     sys.exit()
 
 
