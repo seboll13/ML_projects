@@ -52,7 +52,7 @@ batch_size = 8
 test_batch_size = 1
 
 # total number of training epochs.
-num_epochs = 1
+num_epochs = 30
 # learning rate
 lr = 0.02
 # ratio at which the learning rate decreases
