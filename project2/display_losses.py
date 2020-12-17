@@ -4,7 +4,7 @@ import os
 
 # parameters
 folder = 'models'
-model = 'resnet_3d_48'
+model = 'resnet_3d_38'
 sets = ['train', 'valid']
 epochs = 30
 nb_input_images = 100

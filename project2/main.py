@@ -29,21 +29,20 @@ num_train_workers = 4
 num_valid_workers = 1
 
 
-# If possible, GPU will be used for computation, otherwise change to False
+# If possible, GPU will be used for computation
 use_cuda = True & torch.cuda.is_available()
 
 # Training parameters
-
-batch_size = 8
+batch_size = 4
 test_batch_size = 1
 num_epochs = 30
 gamma = 0.1
-lr = 0.02
+lr = 0.04
 
 step_size = 10
 seed = 1
 
-# Saving parameters
+# Parameters to be saved
 settings = (("model_name",model_name),
             ("train_on_synthetic_data",train_on_synthetic_data),
             ("nb_of_input_images",nb_of_input_images),
@@ -56,6 +55,7 @@ settings = (("model_name",model_name),
             ("lr",lr),
             ("step_size",step_size))
 
+# Saving parameters
 models_folder = "models"
 load_model = False
 load_folder = ""
