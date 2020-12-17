@@ -5,7 +5,7 @@ import os
 
 # parameters
 folder = 'models'
-model = 'resnet_3d_' + str(sys.argv[1])
+model = sys.argv[1]
 sets = ['train', 'valid']
 
 nb_input_images, batch_size, nb_epochs, gamma, lr = 0,0,0,'',''
@@ -15,6 +15,8 @@ if __name__ == '__main__':
     for i in range(len(sets)):
         # get path for current file
         path = os.path.join(folder, model, "losses_" + sets[i] + ".txt")
+        if not os.path.exists(path):
+            sys.exit('Sorry, this folder does not exist.')
         with open(path, 'r') as f:
             for line in f:
                 if line == 'nan':
