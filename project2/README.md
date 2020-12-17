@@ -1,5 +1,6 @@
 # 2020 EPFL Machine Learning - Project 2 structure
 - The current folder contains the following sub-folders:
+  - ```architectures```, which contains all the source code of the architectures the we have imported and used for the project.
   - ```data``` in which all scripts required to generate data are and another sub-folder in which all images generated will be stored.
   - ```report``` in which our report tex and pdf files are stored along with the bib file and the images used in the report.
   - ```models``` in which the models used will be stored when running the main python code.
