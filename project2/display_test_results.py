@@ -4,7 +4,7 @@ import numpy as np
 
 # parameters
 folder = 'models'
-model = 'resnet_3d_48'
+model = 'resnet_3d_43'
 path = os.path.join(folder,model,"test_results.txt") 
 path_loss = os.path.join(folder,model,"losses_test.txt") 
 lines = []
