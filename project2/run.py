@@ -11,6 +11,7 @@ from torch.utils import data
 
 from data.dataLoader_synthetic_dataset import Dataset as SyntheticDataset
 from data.dataLoader_real_dataset import Dataset as RealDataset
+from data.dataLoader_both_dataset import Dataset as MixedDataset
 
 from architectures.resnets import r3d_18
 from architectures.resnets import mc3_18
@@ -23,7 +24,7 @@ model_names = ['resnet_3d', 'resnet_mixed_conv', 'resnet_2_1d']
 model_name = model_names[0]
 
 # Dataloader parameters
-train_on_synthetic_data = False
+select_datalaoder = "mixed"
 nb_of_input_images = 2000
 num_train_workers = 4
 num_valid_workers = 1
@@ -34,9 +35,9 @@ use_cuda = True & torch.cuda.is_available()
 
 # Training parameters
 
-batch_size = 8
+batch_size = 2
 test_batch_size = 1
-num_epochs = 30
+num_epochs = 5
 gamma = 0.1
 lr = 0.02
 
@@ -45,7 +46,7 @@ seed = 1
 
 # Saving parameters
 settings = (("model_name",model_name),
-            ("train_on_synthetic_data",train_on_synthetic_data),
+            ("select_datalaoder",select_datalaoder),
             ("nb_of_input_images",nb_of_input_images),
             ("num_train_workers",num_train_workers),
             ("num_valid_workers",num_valid_workers),
@@ -257,19 +258,27 @@ def main():
     print('Using device:', device)
 
     # Loads the synthetic dataset or real dataset
-    if train_on_synthetic_data:
+    if select_datalaoder == "synthetic":
         print("Loading synthetic data...")
         print('Number of input images:', nb_of_input_images)
         training_set = SyntheticDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = SyntheticDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = SyntheticDataset('test', nb_of_input_images = nb_of_input_images)
-    else:
+    elif select_datalaoder == "real":
         print("Loading real data...")
         print('Number of input images:', nb_of_input_images)
         training_set = RealDataset('train', nb_of_input_images = nb_of_input_images)
         validation_set = RealDataset('validation', nb_of_input_images = nb_of_input_images)
         test_set = RealDataset('test', nb_of_input_images = nb_of_input_images)
-    
+    elif select_datalaoder == "mixed":
+        print("Loading mixed data...")
+        print('Number of input images:', nb_of_input_images)
+        training_set = MixedDataset('train', nb_of_input_images = nb_of_input_images)
+        validation_set = MixedDataset('validation', nb_of_input_images = nb_of_input_images)
+        test_set = MixedDataset('test', nb_of_input_images = nb_of_input_images)
+    else:
+        raise ValueError("Wrong dataloader; Only synthetic,real or mixed")
+        
     print("Amount of training images: " + str(training_set.__len__()))
     print("Amount of validation images: " + str(validation_set.__len__()))
     print("Amount of testing images: " + str(test_set.__len__()))
