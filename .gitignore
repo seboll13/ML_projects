@@ -1,7 +1,5 @@
 project2/env_name/
-*.pickle
 *.mat
-*.csv
 *.DS_Store
 ## Core latex/pdflatex auxiliary files:
 *.aux
