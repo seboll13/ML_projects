@@ -68,7 +68,7 @@ class Dataset(data.Dataset):
                         speedplot[shear], speedplot[shear+1] = speedplot[shear+1],speedplot[shear]
                     for s in range(0,math.floor(len(t_window)/self.input_nb)):
                         self.img_sets.append(np_brt_arr[:,:,s*self.input_nb:(s+1)*self.input_nb])
-                        speedplot *= (10.0/speedplot.max())        #scales the speedplots from 0 to 10, to match both datasets
+                        speedplot *= (10.0/speedplot.max())        #scales the speedplots to match both datasets
                         self.speedplots.append(speedplot)
         
         
@@ -115,11 +115,12 @@ class Dataset(data.Dataset):
             else:
                 for s in range(0,math.floor(len(self.images_by_folder_np[image_set])/self.input_nb)):
                     np_set = np.zeros((12,10,self.input_nb))
-                    np_set[:,:,:] = self.images_by_folder_np[image_set][s*self.input_nb:(s+1)*self.input_nb]
+                    for img in range(0, self.input_nb):
+                        np_set[:,:,img] = self.images_by_folder_np[image_set][img,:,:]
                     self.img_sets_synth.append(np_set.copy())
                     (head, tail) = os.path.split(self.images_by_folder[image_set][0])
                     speedplot = np.genfromtxt(os.path.join(head, "speedplot.csv") , delimiter=',')
-                    speedplot *= (10.0/speedplot.max())        #scales the speedplots from 0 to 10, to match both datasets
+                    speedplot *= (10.0/speedplot.max())        #scales the speedplots to match both datasets
                     self.speedplots_synth.append(speedplot)
         
         
