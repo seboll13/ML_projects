@@ -53,7 +53,7 @@ def plot_speed_curve():
     #plotting over the canvas
     x = np.linspace(0,max_x,max_x)
     
-    y = assign_speed(x,max_x)
+    y = assign_speed(x)
 
     fig = plt.figure()
     fig.suptitle('Speed in Z depending on R', fontsize=20)
@@ -75,7 +75,7 @@ def plot_speed_curve():
     end = math.floor((max_x/2) + (window/2))
     x = np.linspace(0,max_x,max_x)[begining:end]
     
-    y = assign_speed(x,max_x)
+    y = assign_speed(x)
     
     interval = math.floor(window/final_size_x)
     
@@ -222,7 +222,7 @@ def main():
     
     canvas = draw_structs(structs)
     image = draw(canvas)
-    resized = draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x))
+    resized = draw(downsize(extract_middle(canvas),final_size_y,final_size_x))
     
 
     if save_video_canvas:
