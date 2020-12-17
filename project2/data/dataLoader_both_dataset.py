@@ -18,7 +18,7 @@ class Dataset(data.Dataset):
         self.root = 'data/data'
         
         self.filelist=os.listdir(self.root)
-        for file in self.filelist[:]: # filelist[:] makes a copy of filelist.
+        for file in self.filelist[:]: 
             if not(file.endswith(".pickle")):
                 self.filelist.remove(file)
         
