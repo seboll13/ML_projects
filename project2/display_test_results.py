@@ -8,9 +8,10 @@ folder = 'models'
 
 if len(sys.argv) < 2:
     sys.exit('Please input the folder name containing the test results to be plotted')
-    
-if not os.path.exists(str(sys.argv[1])):
-    sys.exit('This folder does not exist')
+
+
+if not os.path.exists(os.path.join(folder,str(sys.argv[1]))):
+    sys.exit('This folder does not exist in ' + folder)
 
 model = str(sys.argv[1])
 path = os.path.join(folder,model,"test_results.txt") 
@@ -34,10 +35,6 @@ if __name__ == '__main__':
 
     loss = np.array(loss)
     labels, outputs = lines[::2], lines[1::2]
-
-    # compute and display useful calculations
-    for i in range(len(loss)):
-        print('Average loss for this prediction :', loss[i])
 
     print('Mean :', np.mean(loss))
     print('Std :', np.std(loss))
