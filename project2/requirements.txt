@@ -1,0 +1,11 @@
+Required Packages:
+
+Pytorch: https://pytorch.org/ 
+         Pytorch Build Stable (v1.7.1)
+	 Cuda v10.2
+
+MatPlotLib: Latest version (v3.3.3)   https://matplotlib.org/
+Numpy     : Latest version (v1.19.0)  https://numpy.org/
+PIL       : Latest version (v8.0.1)   https://pillow.readthedocs.io/en/stable/
+OpenCV    : Latest version (4.4.0.46) https://pypi.org/project/opencv-python/
+Pickle    : Latest version 
