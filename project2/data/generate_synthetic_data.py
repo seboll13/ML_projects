@@ -7,9 +7,9 @@ import os
 import sys
 #Settings 
 #Save full size video (can be a lot of data)
-save_video_canvas = False
+save_video_canvas = True
 #Save video of output
-save_video_output = False
+save_video_output = True
 #Seed for blob size and position
 seed = np.random.randint(100000)
 np.random.seed(seed)
@@ -36,7 +36,7 @@ shift = np.random.randint(-50,50)    #shift the center of the tanh, in pixels
 magnitude = 7     #multiplies tanh; tanh originally goes from -1 to 1, so now from -magnitude to magnitude
 compression = np.random.randint(3,6)    #dictates the shape of tanh; higher number means it goes more quickly to 1 or -1 (it's more compressed at the center)
 #number of iterations, or frames
-iterations = 5000
+iterations = 2000
 
 #list of settings to print to a file
 settings = (("seed",seed),("max_x",max_x),("max_y",max_y),("window",window),("final_size_x",final_size_x),("final_size_y",final_size_y),
@@ -53,7 +53,7 @@ def plot_speed_curve():
     #plotting over the canvas
     x = np.linspace(0,max_x,max_x)
     
-    y = assign_speed(x,max_x)
+    y = assign_speed(x)
 
     fig = plt.figure()
     fig.suptitle('Speed in Z depending on R', fontsize=20)
@@ -75,7 +75,7 @@ def plot_speed_curve():
     end = math.floor((max_x/2) + (window/2))
     x = np.linspace(0,max_x,max_x)[begining:end]
     
-    y = assign_speed(x,max_x)
+    y = assign_speed(x)
     
     interval = math.floor(window/final_size_x)
     
@@ -222,7 +222,7 @@ def main():
     
     canvas = draw_structs(structs)
     image = draw(canvas)
-    resized = draw(downsize(extract_middle(canvas,window),final_size_y,final_size_x))
+    resized = draw(downsize(extract_middle(canvas),final_size_y,final_size_x))
     
 
     if save_video_canvas:
