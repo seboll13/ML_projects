@@ -18,7 +18,7 @@ from architectures.resnets import mc3_18
 from architectures.resnets import r2plus1d_18
 
 # Imports all parameters from parameters_main.py
-from parameters_main import *
+from run_parameters import *
 
 
 def get_model(model_name):
