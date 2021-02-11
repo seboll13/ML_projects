@@ -9,7 +9,7 @@
 - It also contains the main python program ```run.py``` along with two other scripts ```display_losses.py``` and ```display_test_results.py``` that we created to generate plots of the data we trained for an easier visual representation.
 
 ## Parameters description
-- The main process is executed by the command `python run.py`. Here are the descriptions of the settings:
+- The main process is executed by the command `python run.py`, and the parameters used are stored in `run_parameters.py`. It will generate a folder `[architecture]_[id]` in ```models/``` containing the model, the parameters used and the results (losses). Here are the descriptions of the settings:
   ### Model initialisation parameters 
   - ```num_classes```: number of values the model has to predict. It matches with the number of columns to predict.
   - ```model_names```: contains the names of the three architectures, to simplify switching one architecture to another.
