@@ -7,6 +7,8 @@ import math
 import pickle
 import random
 
+from data.dataLoader_parameters import *
+
 #Creates a custom torch dataloader to be used with torch-based architecture, which loads the real data.
 #Note: contrary to the synthetic dataloader, it has to load all the dataset in the RAM; 
 #this is because the files we were provided were pickles files, and we had to unpickle them to work with the sets.
@@ -15,16 +17,12 @@ class Dataset(data.Dataset):
     #as well as the set from which it should give datapoints; train, validation, testing or all
     def __init__(self, usage, nb_of_input_images = 17800, normalize = False):
         #Setting for the behavior of the dataloader: 
-        ratio_train_test = 0.8  #first ratio that will be applied to all data
-        ratio_train_validation = 0.8  #second ratio; it applied to datapoints that aren't in the testing set
-        random.seed(1) #seed to make reproducible randomness
+        random.seed(seed) #seed to make reproducible randomness
         
         self.input_nb = nb_of_input_images
         self.training = False  #this might have been used for augmenting the data during training
-        self.root = 'data/data'  #this is the folder inside which the real sets .pickle files should be placed in order for the dataloader to see them
+        self.root = root  #this is the folder inside which the real sets .pickle files should be placed in order for the dataloader to see them
         
-        speedplot_rescale_min = -10
-        speedplot_rescale_max = 10
         #Scans the root folder to get all the .pickle files
         self.filelist=os.listdir(self.root)
         for file in self.filelist[:]: 

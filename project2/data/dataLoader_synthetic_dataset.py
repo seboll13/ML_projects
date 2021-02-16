@@ -6,23 +6,20 @@ from PIL import Image
 import math
 import random
 
+from data.dataLoader_parameters import *
+
 #Creates a custom torch dataloader to be used with torch-based architecture, which loads synthetic data.
 #Note: by design, it will not load data from disk until they are requested by the main script.
 class Dataset(data.Dataset):
     #Initialisation function; this is where the amount of images per datapoint is specified, 
     #as well as the set from which it should give datapoints; train, validation, testing or all
     def __init__(self, usage, nb_of_input_images = 2000, normalize = False):
-        #Setting for the behavior of the dataloader: 
-        ratio_train_test = 0.8 #first ratio that will be applied to all data
-        ratio_train_validation = 0.8 #second ratio; it applied to datapoints that aren't in the testing set
-        random.seed(1) #seed to make reproducible randomness
+        random.seed(seed) #seed to make reproducible randomness
         
         self.input_nb = nb_of_input_images
         self.training = False   #this might have been used for augmenting the data during training
-        self.root = 'data/data' #this is the folder inside which the synthetic set's folders should be placed in order for the dataloader to see them
+        self.root = root #this is the folder inside which the synthetic set's folders should be placed in order for the dataloader to see them
         
-        speedplot_rescale_min = -10
-        speedplot_rescale_max = 10
         #It scans the root folder for synthetic sets counting up
         folder_num = 0
         self.folders = []

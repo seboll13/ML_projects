@@ -18,7 +18,7 @@ from architectures.resnets import r3d_18
 from architectures.resnets import mc3_18
 from architectures.resnets import r2plus1d_18
 
-# Imports all parameters from parameters_main.py
+# Imports all parameters from run_parameters.py
 from run_parameters import *
 # Import functions to create graphs
 import display_losses

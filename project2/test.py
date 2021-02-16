@@ -7,7 +7,10 @@ import torch.nn as nn
 from torch.utils import data
 
 from data.dataLoader_real_dataset import Dataset as RealDataset
+
+# Imports all parameters from test_parameters.py
 from test_parameters import *
+# Import functions to create graphs
 import display_test_results
 
 def test(model, device, test_loader, loss_func, path):

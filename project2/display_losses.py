@@ -48,6 +48,7 @@ def main(model):
 
     plt.savefig(os.path.join(folder,model,'plot_losses_train_valid.png'))
     plt.close(fig)
+    print("Done.")
     
 if __name__ == '__main__':
     main(sys.argv[1])

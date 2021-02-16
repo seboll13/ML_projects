@@ -59,7 +59,9 @@ def main(model):
 
             plt.savefig(os.path.join(folder,model,'plot_test_results_' + str(i) + '.png'))
             plt.close(fig)
-    
+    print("Done.")
+          
 if __name__ == '__main__':
     main(str(sys.argv[1]))
+    
     

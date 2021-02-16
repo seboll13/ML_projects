@@ -7,23 +7,21 @@ import math
 import pickle
 import random
 
+from data.dataLoader_parameters import *
+
 #Creates a custom torch dataloader to be used with torch-based architecture, which loads the real and synthetic data.
 #It will load a mix of both for training, but only images from the real dataset for validation and testing.
 #This datalaoder was not used in this project, due to both time constraints and the report which would have been too large; still we include it in case the lab is interested in it.
 #Note: due to the fact that it has to mix both datasets, it will load all datasets in RAM.
 class Dataset(data.Dataset):
-    def __init__(self, usage, nb_of_input_images = 2000):
+    def __init__(self, usage, nb_of_input_images = 2000, normalize=False):
         #Setting for the behavior of the dataloader: 
-        ratio_train_test = 0.8 #first ratio that will be applied to all data
-        ratio_train_validation = 0.8 #second ratio; it applied to datapoints that aren't in the testing set
-        random.seed(1) #seed to make reproducible randomness
+        random.seed(seed) #seed to make reproducible randomness
         
         self.input_nb = nb_of_input_images
         self.training = False   #this might have been used for augmenting the data during training
-        self.root = 'data/data' #this is the folder inside which the synthetic set's folders and the real data's pickle files should be placed in order for the dataloader to see them
+        self.root = root #this is the folder inside which the synthetic set's folders and the real data's pickle files should be placed in order for the dataloader to see them
         
-        speedplot_rescale_min = -10
-        speedplot_rescale_max = 10
         ############################################
         #Here it loads the real data just like the specific dataloader
         
