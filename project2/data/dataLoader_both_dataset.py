@@ -12,7 +12,7 @@ import random
 #This datalaoder was not used in this project, due to both time constraints and the report which would have been too large; still we include it in case the lab is interested in it.
 #Note: due to the fact that it has to mix both datasets, it will load all datasets in RAM.
 class Dataset(data.Dataset):
-    def __init__(self, usage, nb_of_input_images = 17800):
+    def __init__(self, usage, nb_of_input_images = 2000):
         #Setting for the behavior of the dataloader: 
         ratio_train_test = 0.8 #first ratio that will be applied to all data
         ratio_train_validation = 0.8 #second ratio; it applied to datapoints that aren't in the testing set
@@ -22,6 +22,8 @@ class Dataset(data.Dataset):
         self.training = False   #this might have been used for augmenting the data during training
         self.root = 'data/data' #this is the folder inside which the synthetic set's folders and the real data's pickle files should be placed in order for the dataloader to see them
         
+        speedplot_rescale_min = -10
+        speedplot_rescale_max = 10
         ############################################
         #Here it loads the real data just like the specific dataloader
         
@@ -30,6 +32,7 @@ class Dataset(data.Dataset):
         for file in self.filelist[:]: 
             if not(file.endswith(".pickle")):
                 self.filelist.remove(file)
+                
         
         #Here it unpickles the files and generates the datapoints, as well as the labels
         self.img_sets = []
@@ -68,7 +71,7 @@ class Dataset(data.Dataset):
                         speedplot[shear], speedplot[shear+1] = speedplot[shear+1],speedplot[shear]
                     for s in range(0,math.floor(len(t_window)/self.input_nb)):
                         self.img_sets.append(np_brt_arr[:,:,s*self.input_nb:(s+1)*self.input_nb])
-                        speedplot *= (10.0/speedplot.max())        #scales the speedplots to match both datasets
+                        speedplot = ((speedplot - speedplot.min()) / (speedplot.max() - speedplot.min())) * (speedplot_rescale_max - speedplot_rescale_min) + speedplot_rescale_min     #scales the speedplots to a common range for both datasets
                         self.speedplots.append(speedplot)
         
         
@@ -120,7 +123,7 @@ class Dataset(data.Dataset):
                     self.img_sets_synth.append(np_set.copy())
                     (head, tail) = os.path.split(self.images_by_folder[image_set][0])
                     speedplot = np.genfromtxt(os.path.join(head, "speedplot.csv") , delimiter=',')
-                    speedplot *= (10.0/speedplot.max())        #scales the speedplots to match both datasets
+                    speedplot = ((speedplot - speedplot.min()) / (speedplot.max() - speedplot.min())) * (speedplot_rescale_max - speedplot_rescale_min) + speedplot_rescale_min        #scales the speedplots to a common range for both datasets
                     self.speedplots_synth.append(speedplot)
         
         
@@ -136,7 +139,7 @@ class Dataset(data.Dataset):
             :math.floor(len(self.img_sets)*ratio_train_test)]
             self.speedplots = self.speedplots[math.floor(len(self.speedplots)*ratio_train_test*ratio_train_validation)
             :math.floor(len(self.speedplots)*ratio_train_test)]
-        elif usage == 'train' or usage == 'all':
+        elif usage == 'train':
             #Removes the test and validation sets for training
             if usage == 'train':
                 self.img_sets = self.img_sets[:math.floor(len(self.img_sets)*ratio_train_test*ratio_train_validation)]
@@ -152,7 +155,13 @@ class Dataset(data.Dataset):
             self.img_sets,self.speedplots = zip(*zipped)
             
             self.training = True
-            
+        elif usage == 'all': #this only appends the synthetic dataset at the end of the real one, without shuffling both
+            self.img_sets = list(self.img_sets)
+            self.speedplots = list(self.speedplots)
+            for i in range(0,len(self.img_sets_synth)):
+                self.img_sets.append(self.img_sets_synth[i])
+                self.speedplots.append(self.speedplots_synth[i])
+            self.training = True
         else:
             raise ValueError("Wrong usage specified; Only train,validation,test or all")
         

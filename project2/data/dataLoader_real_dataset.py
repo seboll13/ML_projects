@@ -13,7 +13,7 @@ import random
 class Dataset(data.Dataset):
     #Initialisation function; this is where the amount of images per datapoint is specified, 
     #as well as the set from which it should give datapoints; train, validation, testing or all
-    def __init__(self, usage, nb_of_input_images = 17800):
+    def __init__(self, usage, nb_of_input_images = 17800, normalize = False):
         #Setting for the behavior of the dataloader: 
         ratio_train_test = 0.8  #first ratio that will be applied to all data
         ratio_train_validation = 0.8  #second ratio; it applied to datapoints that aren't in the testing set
@@ -23,6 +23,8 @@ class Dataset(data.Dataset):
         self.training = False  #this might have been used for augmenting the data during training
         self.root = 'data/data'  #this is the folder inside which the real sets .pickle files should be placed in order for the dataloader to see them
         
+        speedplot_rescale_min = -10
+        speedplot_rescale_max = 10
         #Scans the root folder to get all the .pickle files
         self.filelist=os.listdir(self.root)
         for file in self.filelist[:]: 
@@ -66,6 +68,8 @@ class Dataset(data.Dataset):
                         speedplot[shear], speedplot[shear+1] = speedplot[shear+1],speedplot[shear]
                     for s in range(0,math.floor(len(t_window)/self.input_nb)):
                         self.img_sets.append(np_brt_arr[:,:,s*self.input_nb:(s+1)*self.input_nb])
+                        if normalize:
+                            speedplot = ((speedplot - speedplot.min()) / (speedplot.max() - speedplot.min())) * (speedplot_rescale_max - speedplot_rescale_min) + speedplot_rescale_min     #scales the speedplots to a common range for both datasets
                         self.speedplots.append(speedplot)
         
         #shuffles the datapoints to homogenize the different scenarios

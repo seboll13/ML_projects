@@ -11,7 +11,7 @@ import random
 class Dataset(data.Dataset):
     #Initialisation function; this is where the amount of images per datapoint is specified, 
     #as well as the set from which it should give datapoints; train, validation, testing or all
-    def __init__(self, usage, nb_of_input_images = 2000):
+    def __init__(self, usage, nb_of_input_images = 2000, normalize = False):
         #Setting for the behavior of the dataloader: 
         ratio_train_test = 0.8 #first ratio that will be applied to all data
         ratio_train_validation = 0.8 #second ratio; it applied to datapoints that aren't in the testing set
@@ -21,6 +21,8 @@ class Dataset(data.Dataset):
         self.training = False   #this might have been used for augmenting the data during training
         self.root = 'data/data' #this is the folder inside which the synthetic set's folders should be placed in order for the dataloader to see them
         
+        speedplot_rescale_min = -10
+        speedplot_rescale_max = 10
         #It scans the root folder for synthetic sets counting up
         folder_num = 0
         self.folders = []
@@ -70,7 +72,10 @@ class Dataset(data.Dataset):
         self.speedplots = [np.array([])]*len(self.img_sets)
         for set_nb in range(0,len(self.img_sets)):
             (head, tail) = os.path.split(self.img_sets[set_nb][0])
-            self.speedplots[set_nb] = np.genfromtxt(os.path.join(head, "speedplot.csv") , delimiter=',')
+            speedplot = np.genfromtxt(os.path.join(head, "speedplot.csv") , delimiter=',')
+            if normalize:
+                speedplot = ((speedplot - speedplot.min()) / (speedplot.max() - speedplot.min())) * (speedplot_rescale_max - speedplot_rescale_min) + speedplot_rescale_min     #scales the speedplots to a common range for both datasets
+            self.speedplots[set_nb] = speedplot            
     
     #Returns the amount of datapoints for the current utilisation
     def __len__(self):

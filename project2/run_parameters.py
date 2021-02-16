@@ -17,6 +17,8 @@ model_name = model_names[0]
 ########## Dataloader parameters ####################
 # Selects the dataset to be used (synthetic, real or mixed)
 select_datalaoder = "synthetic"
+#Normalizes labels (= speeds) te be between -10 and 10
+normalize = True
 # number of frames to be considered as a single datapoint. We have chosen 2000 images.
 nb_of_input_images = 2000
 
@@ -34,11 +36,8 @@ use_cuda = True & torch.cuda.is_available()
 ########## Training parameters ######################
 # number of inputs to be trained simultaneously. 
 batch_size = 8
-# number of inputs to be tested simultaneously. 
-test_batch_size = 1
-
 # total number of training epochs.
-num_epochs = 1
+num_epochs = 30
 # learning rate
 lr = 0.02
 # ratio at which the learning rate decreases
@@ -57,7 +56,6 @@ settings = (("model_name",model_name),
             ("num_train_workers",num_train_workers),
             ("num_valid_workers",num_valid_workers),
             ("batch_size",batch_size),
-            ("test_batch_size",test_batch_size),
             ("num_epochs",num_epochs),
             ("gamma",gamma),
             ("lr",lr),
@@ -65,7 +63,3 @@ settings = (("model_name",model_name),
 
 # folder containing the models and their results
 models_folder = "models"
-# loads a pretrained model (stored in models/) if True, otherwise generates and trains a new model
-load_model = False
-# folder to load the model from
-load_folder = "resnet_2_1d_0"
