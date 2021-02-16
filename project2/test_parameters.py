@@ -4,10 +4,10 @@ import torch
 ## Test parameters
 
 ########## Dataloader parameters ####################
-#Normalizes labels (= speeds) te be between -10 and 10
-normalize = True
 # number of frames to be considered as a single datapoint. We have chosen 2000 images.
 nb_of_input_images = 2000
+#Normalizes labels (= speeds) to be between -10 and 10
+normalize = True
 
 
 ########## Hardware parameters ######################
@@ -21,6 +21,7 @@ test_batch_size = 1
 # seed for random functions in PyTorch
 seed = 1
 
+########## Loading parameters ######################
 # folder containing the models and their results
 models_folder = "models"
 # folder to load the model from

@@ -17,10 +17,10 @@ model_name = model_names[0]
 ########## Dataloader parameters ####################
 # Selects the dataset to be used (synthetic, real or mixed)
 select_datalaoder = "synthetic"
-#Normalizes labels (= speeds) te be between -10 and 10
-normalize = True
 # number of frames to be considered as a single datapoint. We have chosen 2000 images.
 nb_of_input_images = 2000
+#Normalizes labels (= speeds) to be between -10 and 10
+normalize = True
 
 # number of workers for the data loader of the training set.
 num_train_workers = 4

@@ -6,6 +6,7 @@ from PIL import Image
 import math
 import random
 
+# Import parameters
 from data.dataLoader_parameters import *
 
 #Creates a custom torch dataloader to be used with torch-based architecture, which loads synthetic data.

@@ -7,6 +7,7 @@ import math
 import pickle
 import random
 
+# Import parameters
 from data.dataLoader_parameters import *
 
 #Creates a custom torch dataloader to be used with torch-based architecture, which loads the real data.
