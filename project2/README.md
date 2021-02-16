@@ -40,7 +40,7 @@
   - ```load_folder```: folder to load the model from
 
 ## Data related scripts parameters
-- To generate synthetic data, run the script `generate_synthetic_data.py`, in `data/`. It will generate a new folder `synthetic_data_[id]` in `data/data/`, inside of which will be: All the frames generated as per the settings, a speedplot of the whole canvas, and a list of settings for reproductibility purposes. Additionnaly, it can save a video of the whole canvas through all the iteration, and a video of all the frames, if you set the corresponding options.
+- To generate synthetic data, run the script `generate_synthetic_data.py`, in `data/`. It takes its parameters from `generate_synthetic_data_parameters.py` It will generate a new folder `synthetic_data_[id]` in `data/data/`, inside of which will be: All the frames generated as per the settings, a speedplot of the whole canvas, and a list of settings for reproductibility purposes. Additionnaly, it can save a video of the whole canvas through all the iteration, and a video of all the frames, if you set the corresponding options.
 
 - Here is a description of all the settings at the beginning of the file:
   - `save_video_canvas` : Save full size canvas video if set to true
