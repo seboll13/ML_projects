@@ -6,10 +6,10 @@
   - ```data``` in which all scripts required to generate data are, with the data loaders and another sub-folder in which all images generated will be stored.
   - ```report``` in which our report tex and pdf files are stored along with the bib file and the images used in the report.
   - ```models``` in which the models used will be stored when running the main python code.
-- It also contains the main python program ```run.py``` along with two other scripts ```display_losses.py``` and ```display_test_results.py``` that we created to generate plots of the data we trained for an easier visual representation.
+- It also contains the main python programs ```run.py``` and ```test.py```, along with two other scripts ```display_losses.py``` and ```display_test_results.py``` that we created to generate plots of the data we trained for an easier visual representation.
 
 ## Parameters description
-- The main process is executed by the command `python run.py`, and the parameters used are stored in `run_parameters.py`. It will generate a folder `[architecture]_[id]` in ```models/``` containing the model, the parameters used and the results (losses). Here are the descriptions of the settings:
+- The main process is executed by the command `python run.py`, and the parameters used are stored in `run_parameters.py`. It is used to train a new model. It will generate a folder `[architecture]_[id]` in ```models/``` containing the model, the parameters used and the results (losses). Here are the descriptions of the settings:
   ### Model initialisation parameters 
   - ```num_classes```: number of values the model has to predict. It matches with the number of columns to predict.
   - ```model_names```: contains the names of the three architectures, to simplify switching one architecture to another.
@@ -20,13 +20,13 @@
   - ```nb_of_input_images```: number of frames to be considered as a single datapoint. We have chosen 2000 images.
   - ```num_train_workers```: number of workers for the data loader of the training set.
   - ```num_valid_workers```: number of workers for the data loader of the validation set.
+  - ```normalize```: normalizes labels (= speeds) to be between -10 and 10
    
   ### Hardware parameter
   - ```use_cuda```: train the model on GPU if True (and if cuda is available on the hardware), otherwise train on CPU.
   
   ### Training parameters
   - ```batch_size```: number of inputs to be trained simultaneously. 
-  - ```test_batch_size```: number of inputs to be tested simultaneously. 
   - ```num_epochs```: total number of training iterations. We have chosen 30 epochs.
   - ```lr```: learning rate
   - ```gamma```: ratio at which the learning rate decreases
@@ -36,7 +36,22 @@
   ### Saving parameters
   - ```settings```: save all parameters in settings.txt for future analysis
   - ```models_folder```: folder containing the models and their results
-  - ```load_model```: loads a pretrained model (stored in models/) if True, otherwise generates and trains a new model
+  
+  
+- The script `test.py` is used to test a pretrained model on unseen data. The command is `python test.py`, and the parameters used are stored in `test_parameters.py`. It will generate the testing results in the folder of the model, as well as graphs of some predictions on the testing set (of the real dataset). Here are the descriptions of the settings:
+  ### Dataloader parameters
+  - ```nb_of_input_images```: number of frames to be considered as a single datapoint. We have chosen 2000 images.
+  - ```normalize```: normalizes labels (= speeds) to be between -10 and 10
+   
+  ### Hardware parameter
+  - ```use_cuda```: train the model on GPU if True (and if cuda is available on the hardware), otherwise train on CPU.
+  
+  ### Training parameters
+  - ```test_batch_size```: number of inputs to be tested simultaneously. 
+  - ```seed```: seed for random functions in PyTorch
+  
+  ### Saving parameters
+  - ```models_folder```: folder containing the models and their results
   - ```load_folder```: folder to load the model from
 
 ## Data related scripts parameters
